@@ -10,7 +10,7 @@ const exerciseDetails = (props) => (
             <h5>Description:</h5>
             <p>{props.exercise.description}</p>
             
-            <div className={classes.CreatedWraper}>
+            <div className={classes.CreatedWrapper}>
                 <div className={classes.Created}>
                     <h5>Created By:</h5>
                     <p>{props.exercise.createdby}</p>

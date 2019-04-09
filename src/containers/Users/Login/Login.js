@@ -4,7 +4,8 @@ import axios from '../../../axios-dev';
 import classes from './Login.module.css';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
-import withErrorHandler from '../../../hoc/WithErrorHandler/WithErrorHandler';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import Input from '../../../components/UI/Input/Input';
 // to read
 
 //https://reactjs.org/docs/render-props.html
@@ -37,8 +38,8 @@ class Login extends React.Component {
             this.setState({showSpinner: true});
             axios.post('/user/login', {login: login, password: password})
                 .then(res => {
-                    if (res.date.errors) {
-                        this.setState({validationErrors: res.date.errors, showSpinner: false});
+                    if (res.data.errors) {
+                        this.setState({validationErrors: res.data.errors, showSpinner: false});
                     }
                     else {
                         this.setState({redirect: true});
@@ -63,10 +64,10 @@ class Login extends React.Component {
                 {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
                 <form onSubmit={this.formSubmitHandler} >
                     <label>
-                        <input type="text" name="login" placeholder="Login" value={this.state.login} onChange={this.inputChangeHandler} />
+                        <Input type="text" name="login" required placeholder="Login" value={this.state.login} changed={this.inputChangeHandler} />
                     </label>
                     <label>
-                        <input type="password" name="password" placeholder="Password" value={this.state.password} onChange={this.inputChangeHandler} />
+                        <Input type="password" name="password" required placeholder="Password" value={this.state.password} changed={this.inputChangeHandler} />
                     </label>
                     {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
                     <label>

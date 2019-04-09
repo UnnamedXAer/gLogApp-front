@@ -1,9 +1,11 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import SimpleReactValidator from 'simple-react-validator';
 
 import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
-
+import Input from '../../../components/UI/Input/Input';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 
 class Registration extends React.Component {
 
@@ -15,7 +17,8 @@ class Registration extends React.Component {
             password: "",
             passwordConfirmation: "",
             dob: "",
-            avatar: null
+            avatar: null,
+            redirect: false
         }
 
         this.imgPreviewRef = React.createRef();
@@ -65,9 +68,10 @@ class Registration extends React.Component {
     }
 
     validateValueBlurHandler = (ev) => {
-        if (ev.target.value !== ''){
+        const target = ev.target;
+        if (target.value !== '' && this.state.formValid && (target.type === 'text' || target.type === 'email' ) ){
 
-            this.validateValue(ev.target);
+            this.validateValue(target);
         }
         else {
             this.setState({nameError: false});
@@ -76,12 +80,6 @@ class Registration extends React.Component {
 
     submitFormHandler = (ev) => {
         ev.preventDefault();
-
-
-        
-
-
-
 
         const formdata = new FormData();
         formdata.append('login', this.state.login);
@@ -101,45 +99,60 @@ class Registration extends React.Component {
             }
         })
         .then(res => {
-            console.log(res);
+            this.setState({redirect: true});
         })
         .catch(err => {
-            console.log(err);
+
         })
     }
 
 
     render () {
+
+        const validationErrors = [];
+
+
         return (
             <div className={classes.Registration} >
+                {this.state.redirect ? <Redirect to="/" exact /> : null}
                 <h3>Registration</h3>
                 <div>
                     <form onSubmit={this.submitFormHandler}>
                         <label>Login: 
-                            <input type="text" name="login" required value={this.state.login} onChange={this.formElementChangeHandler} onBlur={this.validateValueBlurHandler} />
-                        </label><br />
-                        <label>Email: 
-                            <input type="email" name="email" required value={this.state.email} onChange={this.formElementChangeHandler} onBlur={this.validateValueBlurHandler} />
+                            <Input type="text" name="login" required value={this.state.login} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
                             <span className={classes.Error}>{this.validator.message('login', this.state.login, 'required|alpha_num')}</span>
-                        </label><br />
+                            {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
+                        </label>
+
+                        <label>Email: 
+                            <Input type="email" name="email" required value={this.state.email} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
+                            <span className={classes.Error}>{this.validator.message('email', this.state.email, 'required|email')}</span>
+                        </label>
+
                         <label>Password: 
-                            <input type="password" name="password" required value={this.state.password} onChange={this.formElementChangeHandler} onBlur={this.validateValueBlurHandler} />
-                        </label><br />
+                            <Input type="password" name="password" required value={this.state.password} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
+                            <span className={classes.Error}>{this.validator.message('password', this.state.password, 'required')}</span>
+                        </label>
+
                         <label>Confirm Password: 
-                        <input type="password" name="passwordConfirmation" required value={this.state.passwordConfirmation} onChange={this.formElementChangeHandler} onBlur={this.validateValueBlurHandler} />
-                        </label><br />
+                        <Input type="password" name="passwordConfirmation" required value={this.state.passwordConfirmation} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
+                        </label>
+
                         <label>Date of birth: 
-                            <input type="date" name="dob" required value={this.state.dob} onChange={this.formElementChangeHandler} onBlur={this.validateValueBlurHandler}
+                            <Input type="date" name="dob" required value={this.state.dob} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler}
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
-                        </label><br />
+                        </label>
+
                         <label>Select avatar: 
-                            <input type="file" name="avatar" onChange={this.formElementChangeHandler} />
-                        </label><br />
+                            <Input type="file" name="avatar" changed={this.formElementChangeHandler} />
+                        </label>
+
                         <label>
                             <img src={require("../../../img/avatar-blank.png")} ref={this.imgPreviewRef} alt="Avatar" />
-                        </label><br />
+                        </label>
+
                         <label>
-                            <input type="submit" name="submit" value="Go" />
+                            <Input type="submit" name="submit" value="Go" />
                         </label>
                     </form>
                 </div>
@@ -148,4 +161,4 @@ class Registration extends React.Component {
     }
 }
 
-export default Registration;
+export default withErrorHandler(Registration, axios);

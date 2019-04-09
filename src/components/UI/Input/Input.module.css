@@ -1,0 +1,13 @@
+.Input {
+    /* line-height: 1.4em; */
+    font-size: 1.3em;
+    height: 30px;
+    width: 80%;
+    display: block;
+}
+
+.Input[type=file] {
+    font-size: 1.1em;
+}
+
+.
