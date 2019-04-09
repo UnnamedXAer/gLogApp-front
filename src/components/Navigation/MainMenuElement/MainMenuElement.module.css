@@ -1,0 +1,14 @@
+.MainMenuElement {
+    background-position-x: center;
+    background-position-y: center;
+    background-repeat: no-repeat;
+    background-size: 50;
+    background-color: white;
+    height: 75px;
+    width: 35%;
+    border: 1px solid rgba(94, 94, 94,0.75);
+    border-radius: 1px;
+    margin: 10px;
+    box-shadow: 3px 3px 3px #cccc;
+    display: inline-block
+}

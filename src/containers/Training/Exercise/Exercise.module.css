@@ -1,0 +1,14 @@
+.Exercise {
+    display: block;
+    box-sizing: border-box;
+    border-top: 1px solid #232;
+    padding-top: 10px;
+    /* border: 1px solid #232; */
+    /* box-shadow: 2px 4px 4px #adadad; */
+}
+
+.ExerciseInfo {
+    color: grey;
+    font-style: italic;
+    text-align: center;
+}

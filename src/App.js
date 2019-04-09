@@ -1,26 +1,63 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {BrowserRouter, Switch, Route} from 'react-router-dom';
+import classes from './App.module.css';
+import Layout from './hoc/Layout/Layout';
+import Training from './containers/Training/Training';
+import Home from './components/Home/Home';
+import Profile from './containers/Users/Profile/Profile';
+import Registration from './containers/Users/Registration/Registration';
+import Login from './containers/Users/Login/Login';
+import AddExercise from './containers/AddExercise/AddExercise';
+import PlanConfigurator from './containers/PlanConfigurator/PlanConfigurator';
+//import { ToastContainer, toast } from 'react-toastify'; // TODO: uninstall if not implemented
+
 
 class App extends Component {
+
   render() {
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+        <BrowserRouter>
+            <div className={classes.App}>
+                <Layout>
+                <Switch>
+                        <Route
+                            path="/" exact activeElement
+                            component={Home}
+                            />
+                        <Route
+                            path="/home" exact activeElement
+                            component={Home}
+                            />
+                        <Route
+                            path="/training" exact
+                            component={Training}
+                            />
+                        <Route
+                            path="/create-exercise" exact
+                            component={AddExercise}
+                            />
+                        <Route
+                            path="/profile" exact
+                            component={Profile}
+                            />
+                        <Route
+                            path="/plan-conf" exact
+                            component={PlanConfigurator}
+                            />
+                        <Route
+                            path="/registration" exact
+                            component={Registration}
+                            />
+                        <Route
+                            path="/login" exact
+                            component={Login}
+                            />
+                    </Switch>
+                </Layout>
+                {/* <ToastContainer /> */}
+            </div>
+        </BrowserRouter>
     );
   }
 }

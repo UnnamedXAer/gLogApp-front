@@ -1,0 +1,9 @@
+.Registration {
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.Registration label {
+    margin: 8px 0px;
+    display: block;
+}

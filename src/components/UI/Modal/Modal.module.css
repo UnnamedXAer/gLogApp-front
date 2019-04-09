@@ -1,0 +1,42 @@
+.Modal {
+    position: fixed;
+    z-index: 500;
+    background-color: white;
+    /* width: 70%; */
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px 1px black;
+    padding: 6px;
+    /* left: 15%; */
+    /* top: 15%; */
+    box-sizing: border-box;
+    transition: all 0.3s ease-out;
+}
+
+@media (min-width: 600px) { /* when screen >= 600 set mode width to 500 and center it on the screen */
+    .Modal {
+        width: 500px;
+        left: calc(50% - 250px); 
+    }
+}
+
+.Content {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 2.4em);
+}
+
+.Header {
+    box-sizing: border-box;
+    width: 100%;
+    /* border: 1px solid springgreen; */
+    height: 2.4em;
+}
+
+.Title {
+    display: inline-block;
+    font-size: 1.1em;
+    line-height: 1.2em;
+    height: 1.4em;
+    padding: 10px;
+    font-weight: 500;
+}

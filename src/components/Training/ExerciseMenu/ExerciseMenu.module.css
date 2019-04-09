@@ -1,0 +1,14 @@
+.ExerciseMenu {
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.ExerciseMenu button {
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: white;
+    height: 35px;
+    display: block;
+    margin: 10px auto;
+    font-size: 1.2em;
+}

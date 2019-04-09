@@ -1,0 +1,41 @@
+.Login {
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+}
+
+.Login label {
+    display: block;
+    margin: 10px 16px;
+    padding: 10px;
+}
+
+.Login input {
+    line-height: 20px;
+    font-size: 1.3em;
+    height: 30px;
+    width: 80%;
+}
+
+.SpinnerWrapper {
+    box-sizing: border-box;
+    margin: 0px auto;
+    top: 0;
+    left: 10%;
+    position: absolute;
+    width: 80%;
+    height: 50%;
+
+    border: 1px solid seagreen;
+}
+
+.Error {
+    color: rgb(201, 22, 22);
+    font-size: 0.8em;
+    margin: 5px;
+    font-style: italic;
+}
+
+.Error p {
+    text-transform: capitalize;
+}

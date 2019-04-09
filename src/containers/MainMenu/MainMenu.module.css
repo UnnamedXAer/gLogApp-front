@@ -1,0 +1,50 @@
+.MainMenu {
+    
+    width: 85%;
+    box-sizing: border-box;
+    margin: 8px auto;
+    min-height: 44px;
+    scroll-behavior: auto;
+    top: 10%;
+    position: absolute;
+    left: 50%;
+    /* transform: translate(-50%, 0); */
+    border: 1px solid rgb(179, 179, 179);
+    box-shadow: 0px 0px 9px 0px rgba(0,0,0,0.75);
+    background-color: white;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    z-index: 200;
+    height: 80%;
+
+    transition: transform 0.3s ease-out;
+}
+
+.Open {
+    transform: translateX(-50%);
+}
+
+.Close {
+    transform: translateX(-200%);
+}
+
+.MainMenuContainer {
+    width: 100%;
+    height: calc(100% -2.4em); /*-CloseArrow*/
+    overflow: auto;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.MenuFooter {
+    position: fixed;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    bottom: 0;
+    width: 100%;
+}
+

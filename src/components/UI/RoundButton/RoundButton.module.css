@@ -1,0 +1,119 @@
+.RoundButton {
+    display: inline-block;
+    box-sizing: border-box;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 25px;
+    /* background-color: rgb(44,108,128); */
+    background-color: black;
+}
+
+.BeforePlus::before {
+    content: "+";
+    height:100%;
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}
+
+.BeforeMinus::before {
+    content: "-";
+    height:100%;
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}
+
+.BeforeTick::before {
+    content: "✔";
+    height:100%;
+    width:100%;
+    font-size: 0.8em;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}
+
+.BeforeOK::before {
+    content: "OK";
+    height:100%;
+    width:100%;
+    font-size: 0.6em;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:white;
+}
+
+.BeforeQuestion::before {
+    content: "?";
+    height:100%;
+    width:100%;
+    font-size: 0.6em;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:white;
+}
+
+.BeforeMenuV::before {
+    content: "⋮";
+    height:100%;
+    width:100%;
+    font-size: 0.6em;
+    display:flex;
+    text-align: center;
+    /* flex-direction:row; */
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}
+
+.BeforeMenuH::before {
+    content: "…";
+    height:100%;
+    width:100%;
+    font-size: 0.8em;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}
+
+.BeforeMenu::before {
+    content: "≡";
+    height:100%;
+    width:100%;
+    font-size: 0.8em;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-family:courier;
+    color:white;
+}

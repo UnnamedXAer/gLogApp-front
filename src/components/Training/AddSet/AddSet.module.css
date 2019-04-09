@@ -1,0 +1,25 @@
+.AddSet {
+    box-sizing: border-box;
+    border-top: 1px solid  #232;
+    /* border: 1px solid #232;
+    box-shadow: 2px 4px 4px #adadad; */
+    margin: 10px 5px;
+    position: relative;
+    padding: 10px;
+}
+
+.AddSet .FormElement {
+    margin: 5px 0px;
+    min-height: 1.6em;
+}
+
+.AddSetTitle {
+    font-weight: 600;
+    padding-bottom: 5px;
+}
+
+.ButtonWraper {
+    position: absolute;
+    top:10px;
+    right: 10px;
+}

@@ -1,0 +1,9 @@
+.LayoutMain {
+    box-sizing: border-box;
+    /* border: 1px solid crimson; */
+    padding: 3px;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* height: calc(100% - 40px); */
+}

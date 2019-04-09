@@ -1,0 +1,10 @@
+.MultiselectInput {
+    background-color: darksalmon;
+    border: none;
+    background: inherit;
+    line-height: 1.4em;
+    height: 28px;
+    box-sizing: border-box;
+    margin: 5px;
+    outline: 0;
+}

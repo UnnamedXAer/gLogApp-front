@@ -1,0 +1,78 @@
+.AddExercise {
+    width: 100%;
+    height: 100%;
+    /* overflow: auto; */
+    box-sizing: border-box;
+}
+
+.AddExerciseFormContainer {
+    box-sizing: border-box;
+    width: 90%;
+    margin: 15px auto;
+
+    /* border: 1px solid green; */
+}
+
+.FormElement {
+    display: block;
+    margin: 5px 10px 10px 10px;
+    box-sizing: border-box;
+
+    /* border: 1px solid blueviolet; */
+}
+
+.FormElement > input {
+    /* background-color: coral; */
+    line-height: 2em;
+    margin-left: 5px; 
+    width: 90%;
+    display: block;
+}
+
+.FormElementError {
+    border: 1px solid firebrick;
+    box-shadow: 1px 3px 3px firebrick; 
+}
+
+.Name {
+    
+}
+
+.Description {
+    width: 90%;
+}
+
+/* @media only screen and (max-width: 370px) {
+    .Description {
+        width: 20em; 
+        background-color: yellow;
+    }
+} */
+
+.linkYT {
+    
+}
+
+.Photo {
+
+}
+
+.SetsUnit {
+    height: 2em;
+    line-height: 1.4em;
+    font-size: 1.0em;
+    /* background-color: coral; */
+    margin-left: 5px; 
+}
+
+.SetsUnit option {
+    font-size: 1.0em;
+}
+
+.Multiselect {
+
+}
+
+.Subtmit {
+
+}

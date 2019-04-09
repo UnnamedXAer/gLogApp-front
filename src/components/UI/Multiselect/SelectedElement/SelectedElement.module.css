@@ -1,0 +1,45 @@
+.SelectedElement {
+    box-sizing: border-box;
+    background-color:rgba(0, 126, 255, 0.08);
+    /* background-color:rgb(162, 209, 255); */
+    /* border: 1px solid rgb(64, 159, 253); */
+    border: 1px solid rgba(0, 126, 255, 0.24);
+    border-radius: 2px;
+    /* color: #0661bd; */
+    color: #007eff;
+    display: inline-block;
+    text-transform: capitalize;
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 0.9em;
+    margin-left: 5px;
+    margin-top: 5px;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    height: 26px;
+}
+
+.SelectedElementValue {
+    box-sizing: border-box;
+    height: 100%;
+    font-size: 0.9em;
+    /* border-bottom: 1px solid rgba(0, 126, 255, 0.24); */
+    margin-left: 4px;
+    display: inline-block;
+    padding: 2px 4px;
+}
+
+.SelectedElementRemove {
+    box-sizing: border-box;
+    height: 100%;
+    font-size: 0.9em;
+    border-right: 1px solid rgba(0, 126, 255, 0.24);
+    display: inline-block;
+    padding: 2px 5px;
+    cursor: pointer;
+}
+
+
+.SelectedElementRemove:hover {
+    background-color: rgba(0, 126, 255, 0.14);
+}

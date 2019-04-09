@@ -1,0 +1,93 @@
+.MultiSelect {
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 15px;
+    text-align: left;
+    background-color: white;
+}
+
+.MultiSelect > .Container {
+    box-sizing: border-box;
+    border: 1px solid;
+    border-color: #d9d9d9 #ccc #b3b3b3;
+    background-color: white;
+    border-radius: 2px 2px 2px 2px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    color: rgb(59, 59, 59);
+}
+
+.MultiSelect > .ContainerBottomNoRadius {
+    border-radius: 2px 2px 0px 0px;
+}
+
+.MultiSelect > h4 {
+    margin-block-start: 10px;
+    margin-block-end: 5px;
+}
+
+.MultiSelect > .SelectBoxWrapper {
+    width: 100%;
+    height: 0px;
+    border: none;
+    position: relative;
+    background-color: inherit;
+}
+
+.MultiSelect > .Container > .Elements {
+    box-sizing: border-box;
+    /* float: left; */
+    height: 100%;
+    width: calc(100% - 42px);
+}
+
+.MultiSelect > .Container > .Buttons {
+    box-sizing: border-box;
+    height: inherit;
+    width: 42px;
+}
+
+.MultiSelect > .Container > .Buttons > .Button {
+    box-sizing: border-box;
+    display: inline-block;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    color: #999;
+    cursor: pointer;  
+}
+
+.MultiSelect > .Container > .Buttons > .Button:hover {
+    background-color: rgb(238, 238, 238);
+    color: rgb(71, 71, 71);
+}
+
+.MultiSelect > .Container > .Buttons > .Expand {
+    width: 25px;
+    border-color: #999 transparent transparent;
+}
+
+.MultiSelect > .Container > .Buttons > .Clear {
+    width: 17px;
+}
+
+.MultiSelect > .Container > .Buttons > .Expand > .Arrow {
+    border-color: #999 transparent transparent;
+    border-style: solid;
+    border-width: 5px 5px 2.5px;
+    display: inline-block;
+    height: 0;
+    width: 0;
+    position: relative;
+    outline: none;
+}
+
+.MultiSelect > .Container > .Buttons > .Expand > .RotateArrow {
+    transform: rotate(180deg);
+}
+
+.MultiSelect > .Container > .Buttons > .Expand:hover > span {
+    border-color: rgb(71, 71, 71) transparent transparent;
+}
