@@ -10,7 +10,9 @@ const input = props => <input
     value={props.value}
     onChange={props.changed}
     onBlur={props.blurred}
-    required={props.required} />;
+    required={props.required}
+    pattern={props.pattern}
+    onFocus={props.focused} />;
 
 
 export default input;

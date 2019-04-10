@@ -4,10 +4,9 @@
     height: 30px;
     width: 80%;
     display: block;
+    border: none;
 }
 
 .Input[type=file] {
     font-size: 1.1em;
 }
-
-.

@@ -13,12 +13,22 @@ const withErrorHandler = (WrappedComponent, axios) => {
         componentWillMount () {
             this.reqInterceptor = axios.interceptors.request.use(req => {
                 this.setState({error: null});
+                // Do something before request is sent
                 return req;
+            }, (error) => {
+                // Do something with request error
+                console.log(error);
+                return Promise.reject(error);
             });
 
-            this.resInterceptor = axios.interceptors.response.use(res => res, error => {
+            this.resInterceptor = axios.interceptors.response.use(res => {
+                
+                return res;
+            }, (error) => {
+                // Do something with response error
                 console.log(error);
                 this.setState({error: error});
+                return Promise.reject(error);
             });
         }
 
@@ -28,7 +38,7 @@ const withErrorHandler = (WrappedComponent, axios) => {
         }
 
         errorConfirmedHandler = () => {
-            this.setState({error: null})
+            this.setState({error: null});
         }
 
         render () {

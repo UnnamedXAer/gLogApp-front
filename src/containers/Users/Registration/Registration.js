@@ -6,6 +6,7 @@ import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import FormField from '../../../components/UI/FormField/FormField';
 
 class Registration extends React.Component {
 
@@ -18,20 +19,55 @@ class Registration extends React.Component {
             passwordConfirmation: "",
             dob: "",
             avatar: null,
-            redirect: false
+            redirect: false,
+            validationErrors: [],
+            displayErrors4fields: []
         }
 
         this.imgPreviewRef = React.createRef();
-        this.validator = new SimpleReactValidator();
+        this.validator = new SimpleReactValidator(
+            {
+                validators: {
+                    passwordConfirmation: {  // name the rule
+                        message: 'The passwords do not match.',
+                        rule: (val, params, validator) => {
+                            return val[0] === val[1];
+                        },
+                        messageReplace: (message, params) => message.replace(':values', this.helpers.toSentence(params)),  // optional
+                        //required: true  // optional
+                    }
+                }
+            }
+        );
     }
 
     formElementChangeHandler = (ev) => {
+        const name = ev.target.name;
+
+        let errorFields = [...this.state.displayErrors4fields];
+        switch (name) {
+            case 'file':
+            case 'dob':
+                const posInErrors = errorFields.indexOf(name);
+                if (ev.target.value === "" && posInErrors > -1) {
+                    errorFields.splice(posInErrors, 1);
+                }
+                else if (ev.target.value !== "" && posInErrors === -1) {
+                    errorFields.push(name);
+                }
+                break;
         
+            default: // password, confirmPassword, login, email
+                if (ev.target.value !== "" && errorFields.indexOf(name) === -1) {
+                    errorFields.push(name);
+                }
+                break;
+        }
+
 
         switch (ev.target.type) {
             case 'file':
-                this.setState({[ev.target.name]: ev.target.files[0], formValid: this.validator.allValid()});
-
+                this.setState({[name]: ev.target.files[0], formValid: this.validator.allValid(), displayErrors4fields: errorFields});
 
                 const file = ev.target.files[0];
                 if (!file) {
@@ -47,7 +83,7 @@ class Registration extends React.Component {
                 }
                 break;        
             default:
-                this.setState({[ev.target.name]: ev.target.value, formValid: this.validator.allValid()});
+                this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
                 break;
         }
 
@@ -99,17 +135,24 @@ class Registration extends React.Component {
             }
         })
         .then(res => {
-            this.setState({redirect: true});
+            if (res.data.errors) {
+                this.setState({validationErrors: res.data.errors});
+                window.scrollTo(0, 0);
+            }
+            else {
+                this.setState({redirect: true});
+            }
         })
         .catch(err => {
 
         })
     }
 
-
     render () {
 
-        const validationErrors = [];
+        const validationErrors = this.state.validationErrors.map((x, index) => {
+            return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
+        });
 
 
         return (
@@ -117,34 +160,79 @@ class Registration extends React.Component {
                 {this.state.redirect ? <Redirect to="/" exact /> : null}
                 <h3>Registration</h3>
                 <div>
+                    {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
                     <form onSubmit={this.submitFormHandler}>
-                        <label>Login: 
-                            <Input type="text" name="login" required value={this.state.login} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
-                            <span className={classes.Error}>{this.validator.message('login', this.state.login, 'required|alpha_num')}</span>
-                            {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
-                        </label>
 
-                        <label>Email: 
-                            <Input type="email" name="email" required value={this.state.email} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
-                            <span className={classes.Error}>{this.validator.message('email', this.state.email, 'required|email')}</span>
-                        </label>
+                        <FormField 
+                            label="Login"
+                            type="text" 
+                            name="login" 
+                            required 
+                            value={this.state.login} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.validateValueBlurHandler}
+                            placeholder="Login" 
+                            validator={this.validator}
+                            rules="required|alpha_num|min:2"
+                            errors4Fields={this.state.displayErrors4fields} />
 
-                        <label>Password: 
-                            <Input type="password" name="password" required value={this.state.password} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
-                            <span className={classes.Error}>{this.validator.message('password', this.state.password, 'required')}</span>
-                        </label>
+                        <FormField 
+                            label="Email"
+                            type="email" 
+                            name="email" 
+                            required 
+                            value={this.state.email} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.validateValueBlurHandler}
+                            placeholder="Email"
+                            validator={this.validator}
+                            rules="required|email"
+                            errors4Fields={this.state.displayErrors4fields} />
+                        
+                        <FormField 
+                            label="Password" 
+                            type="password" 
+                            name="password" 
+                            required 
+                            value={this.state.password} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.validateValueBlurHandler}
+                            placeholder="Password"
+                            validator={this.validator}
+                            rules="required|min:6"
+                            errors4Fields={this.state.displayErrors4fields} />
 
-                        <label>Confirm Password: 
-                        <Input type="password" name="passwordConfirmation" required value={this.state.passwordConfirmation} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler} />
-                        </label>
+                        <FormField 
+                            label="Confirm Password" 
+                            type="password" 
+                            name="passwordConfirmation" 
+                            required 
+                            value={this.state.passwordConfirmation} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.validateValueBlurHandler}
+                            placeholder="Confirm password"
+                            validator={this.validator}
+                            validatorValues={[this.state.password, this.state.passwordConfirmation]}
+                            rules="required|passwordConfirmation"
+                            errors4Fields={this.state.displayErrors4fields} />
 
-                        <label>Date of birth: 
-                            <Input type="date" name="dob" required value={this.state.dob} changed={this.formElementChangeHandler} blurred={this.validateValueBlurHandler}
-                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
-                        </label>
+                        <FormField 
+                            label="Date of birth" 
+                            type="date" 
+                            name="dob" 
+                            value={this.state.dob} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.validateValueBlurHandler}
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+                            placeholder="Date of birth" />
+
 
                         <label>Select avatar: 
-                            <Input type="file" name="avatar" changed={this.formElementChangeHandler} />
+                            <Input 
+                                type="file" 
+                                name="avatar" 
+                                changed={this.formElementChangeHandler} 
+                                placeholder="Avatar - picture"/>
                         </label>
 
                         <label>

@@ -22,10 +22,6 @@ class App extends Component {
                 <Layout>
                 <Switch>
                         <Route
-                            path="/" exact activeElement
-                            component={Home}
-                            />
-                        <Route
                             path="/home" exact activeElement
                             component={Home}
                             />
@@ -52,6 +48,10 @@ class App extends Component {
                         <Route
                             path="/login" exact
                             component={Login}
+                            />
+                        <Route
+                            path="/" exact activeElement
+                            component={Home}
                             />
                     </Switch>
                 </Layout>

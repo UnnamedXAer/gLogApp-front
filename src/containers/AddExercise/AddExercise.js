@@ -1,7 +1,10 @@
 import React from 'react';
+import SimpleReactValidator from 'simple-react-validator';
 import classes from './AddExercise.module.css';
 import axios from '../../axios-dev';
 import Multiselect from '../Multiselect/Multiselect';
+import FormField from '../../components/UI/FormField/FormField';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 class AddExercise extends React.Component {
     constructor(props) {
@@ -9,7 +12,7 @@ class AddExercise extends React.Component {
         this.state = {
             name: "",
             description: "",
-            file: null,
+            file: "",
             setUnit: 1,
             engagedParties: [], // {id, name} of body parts
             engagedPartiesOptions: [],
@@ -20,23 +23,33 @@ class AddExercise extends React.Component {
             ytUrl: '',
             showYTFrame: false,
             multipleSelect_inputVal: '',
-            nameError: false
-        }
 
+            redirect: false,
+            validationErrors: [],
+            displayErrors4fields: []
+        }
+        this.validator = new SimpleReactValidator();
         this.multipleSelectInputChanged_timeout = null;
     }
 
-    formElementChangeHandler = (event) => {
+    formElementChangeHandler = (ev) => {
 
-        switch (event.target.type) {
+        const name = ev.target.name;
+        const errorFields = [...this.state.displayErrors4fields];
+
+        if (ev.target.value !== "" && errorFields.indexOf(name) === -1) {
+            errorFields.push(name);
+        }
+
+        switch (ev.target.type) {
             case 'file':
-                this.setState({[event.target.name]: event.target.files[0]});
+                this.setState({[name]: ev.target.files[0], formValid: this.validator.allValid(), displayErrors4fields: errorFields});
                 break;        
             default:
-                if (event.target.name === 'ytUrl') {
-                    let url = event.target.value;
+                if (name === 'ytUrl') {
+                    let url = ev.target.value;
                     if ((url.indexOf('https://www.youtube.com/') === 0 || url.indexOf('https://youtu.be/') === 0) 
-                        && (url.length > ('https://youtu.be/').length ||url.length > ('https://www.youtube.com/').length)) {
+                        && (url.length > ('https://youtu.be/').length || url.length > ('https://www.youtube.com/').length)) {
                         const listIndex = url.indexOf('list=');
                         if (listIndex !== -1) {
                             url = url.substring(0, listIndex-1);
@@ -44,20 +57,25 @@ class AddExercise extends React.Component {
                         url = url.replace("watch?v=", "embed/");
                         // eslint-disable-next-line
                         url = url.replace('https\:\/\/youtu.be\/', 'https\:\/\/www.youtube.com\/embed\/');
-                        this.setState({[event.target.name]: url, showYTFrame: true});
+                        this.setState({[name]: url, showYTFrame: true, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
                     }
                     else {
-                        this.setState({[event.target.name]: url, showYTFrame: false});
+                        this.setState({[name]: url, showYTFrame: false, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
                     }
                 }
                 else 
-                    this.setState({[event.target.name]: event.target.value});
+                    this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
                 break;
+        }
+
+        if (!this.state.formValid) {
+            this.validator.showMessages();
+            this.forceUpdate();
         }
     }
 
-    submitFormHandler = (event) => {
-        event.preventDefault();
+    submitFormHandler = (ev) => {
+        ev.preventDefault();
 
         const _state = this.state;
         const formdata = new FormData();
@@ -81,10 +99,10 @@ class AddExercise extends React.Component {
                 }
             })
             .then(res => {
-                console.log(res)
+                console.log(res);
             })
             .catch(err => {
-                console.log(err);
+                // handled in withErrorHandler
             });
     }
 
@@ -116,7 +134,7 @@ class AddExercise extends React.Component {
                 this.setState({accessory4ExerciseOptions: res.data, exerciseIsAccessoryForExercisesOptions: res.data});
             })
             .catch(err => {
-                console.log(err);
+                // handled in withErrorHandler
             });
 
         axios.get('/body-part/all/')
@@ -124,7 +142,7 @@ class AddExercise extends React.Component {
                 this.setState({engagedPartiesOptions: res.data});
             })
             .catch(err => {
-                console.log(err);
+                // handled in withErrorHandler
             });
     }
 
@@ -134,32 +152,37 @@ class AddExercise extends React.Component {
                 <h3>New Exercise:</h3>
                 <div className={classes.AddExerciseFormContainer}>
                     <form onSubmit={this.submitFormHandler} className={classes.Form}>
-                        <label className={classes.FormElement}>Name:
-                            <input className={[classes.Name, (this.state.nameError === true ? classes.FormElementError : "")].join(' ')} 
-                                type="text" 
-                                name="name" 
-                                value={this.state.name} 
-                                onChange={this.formElementChangeHandler} 
-                                onBlur={this.checkNameBlurHandler}/>
-                        </label><br />
-                        <label className={classes.FormElement}>Description:
-                            <textarea className={classes.Description} 
-                                type="text" 
-                                name="description" 
-                                cols="40" 
-                                rows="4" 
-                                value={this.state.description} 
-                                onChange={this.formElementChangeHandler} />
-                        </label><br />
-                        <label className={classes.FormElement}>Sets Unit:
-                            <select className={classes.setUnit}
-                                name="setUnit" 
-                                value={this.state.setUnit} 
-                                onChange={this.formElementChangeHandler}>
-                                <option value="1">Repetitions</option>
-                                <option value="2">Time</option>
-                            </select>
-                        </label><br />
+                        <FormField 
+                            label="Name"
+                            type="text" 
+                            name="name" 
+                            required 
+                            value={this.state.name} 
+                            changed={this.formElementChangeHandler} 
+                            blurred={this.checkNameBlurHandler}
+                            placeholder="Exercise Name" 
+                            validator={this.validator}
+                            rules="required"
+                            errors4Fields={this.state.displayErrors4fields} />
+
+
+                        <FormField  
+                            label="Description"
+                            type="textarea"
+                            name="description"
+                            cols="40"
+                            rows="4"
+                            value={this.state.description}
+                            changed={this.formElementChangeHandler} />
+
+                        <FormField  
+                            label="Set Unit"
+                            type="selectbox"
+                            name="setUnit"
+                            value={this.state.setUnit}
+                            changed={this.formElementChangeHandler}
+                            options={[{value: 1, text: "Repetitions"}, {value: 2, text: "Seconds"}]} />
+
                         <div className={[classes.Multiselect, classes.FormElement].join(' ')}>
                             <Multiselect 
                                 title="Engaged parties by this exercise:" 
@@ -185,15 +208,22 @@ class AddExercise extends React.Component {
                                 sendSelectedOnSelect={this.getSelectedOptionsSelectHandler}
                                 />
                         </div>
-                        <label className={classes.FormElement}>Photo:
-                            <input className={classes.Photo} type="file" name="file" onChange={this.formElementChangeHandler} />
-                        </label><br />
-                        <label className={classes.FormElement}>Link to YT:
-                            <input className={classes.linkYT} 
-                                type="text" 
-                                name="ytUrl" 
-                                onChange={this.formElementChangeHandler} 
-                                value={this.state.ytUrl} />
+
+                        <FormField 
+                            label="Photo"
+                            type="file" 
+                            name="file"
+                            value={this.state.file} 
+                            changed={this.formElementChangeHandler} />
+
+                        <FormField 
+                            label="Link to YT"
+                            type="text" 
+                            name="ytUrl" 
+                            required 
+                            value={this.state.ytUrl} 
+                            changed={this.formElementChangeHandler}
+                            placeholder="YT link" />
                             {this.state.showYTFrame ? <div className={classes.YTContainer}>
                             <iframe width="100%"  title="Exercise YT Video"
                                 src={this.state.ytUrl} 
@@ -202,9 +232,11 @@ class AddExercise extends React.Component {
                                 allowFullScreen
                                 ></iframe>
                                 </div>: null}
-                        </label><br />
+
                         <label className={classes.FormElement}>
-                            <input className={classes.Submit} type="submit" name="submit" value="Go" />
+                            <FormField
+                                type="button"
+                                name="Create" />
                         </label><br />
                     </form>
                 </div>
@@ -214,4 +246,4 @@ class AddExercise extends React.Component {
     }
 }
 
-export default AddExercise;
+export default withErrorHandler(AddExercise, axios);

@@ -10,3 +10,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+
+// https://github.com/jiaweichiu/node-react-passport/blob/master/frontend/src/App.js
+// https://www.npmjs.com/package/react-toastr

@@ -1,11 +1,5 @@
 import axios from 'axios';
 
-
-// const instance = axios.create({
-//   //  baseURL: 'https://g-log-app.firebaseio.com'
-//     baseURL: 'https://g-log-app-kt.firebaseio.com/'
-// });
-
 const instance = axios.create({
       baseURL: 'http://localhost:3030'
     //  baseURL: 'http://628b79f9.ngrok.io'

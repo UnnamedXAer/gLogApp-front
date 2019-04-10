@@ -3,7 +3,7 @@ import SelectedElement from '../../components/UI/Multiselect/SelectedElement/Sel
 import MultiselectInput from '../../components/UI/Multiselect/MultiselectInput/MultiselectInput';
 import MultiselectSelectBox from '../../components/UI/Multiselect/MultiselectSelectBox/MultiselectSelectBox';
 import { getReducedArray, compareByNameProperty as compare } from '../../utility';
-import classes from './Multiselect.css';
+import classes from './Multiselect.module.css';
 
 class Multiselect extends Component {
     constructor(props) {
