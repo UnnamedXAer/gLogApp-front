@@ -4,9 +4,9 @@ import SimpleReactValidator from 'simple-react-validator';
 
 import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
-import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import FormField from '../../../components/UI/FormField/FormField';
+import { isCorrectDate, isDob } from '../../../utility';
 
 class Registration extends React.Component {
 
@@ -18,23 +18,56 @@ class Registration extends React.Component {
             password: "",
             passwordConfirmation: "",
             dob: "",
-            avatar: null,
+            avatar: "",
             redirect: false,
             validationErrors: [],
-            displayErrors4fields: []
+            displayErrors4fields: [],
+            loginExists: false,
+            emailExists: false,
+            formValid: false
         }
 
         this.imgPreviewRef = React.createRef();
         this.validator = new SimpleReactValidator(
             {
                 validators: {
+                    password: {
+                        message: "Password must be 6+ chars long, contain number and uppercase and lowercase letter.",
+                        rule: (val, params, validator) => {
+                            return (new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)).test(val);
+                        },
+                    },
                     passwordConfirmation: {  // name the rule
                         message: 'The passwords do not match.',
                         rule: (val, params, validator) => {
                             return val[0] === val[1];
                         },
-                        messageReplace: (message, params) => message.replace(':values', this.helpers.toSentence(params)),  // optional
+                        // messageReplace: (message, params) => message.replace(':values', this.helpers.toSentence(params)),  // optional
                         //required: true  // optional
+                    },
+                    formatDate: {
+                        message: "Must be a valid date.",
+                        rule: (val, params, validator) => {
+                            return isCorrectDate(val);
+                        }
+                    },
+                    dob: {
+                        message: "Not a valid date of birth.",
+                        rule: (val, params, validator) => {
+                            return isDob(val);
+                        }
+                    },
+                    fileSize: {
+                        message: 'File size limit is 2MB.',
+                        rule: (val, params, validator) => {
+                            return val.size < (0.5 * 1024 * 1024);
+                        }
+                    },
+                    fileType: {
+                        message: 'File type can be only png, jpg or gif.',
+                        rule: (val, params, validator) => {
+                            return val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif';
+                        }
                     }
                 }
             }
@@ -67,10 +100,10 @@ class Registration extends React.Component {
 
         switch (ev.target.type) {
             case 'file':
-                this.setState({[name]: ev.target.files[0], formValid: this.validator.allValid(), displayErrors4fields: errorFields});
-
                 const file = ev.target.files[0];
-                if (!file) {
+                this.setState({[name]: file, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+
+                if (!file) {    
                     this.imgPreviewRef.current.src = require("../../../img/avatar-blank.png");
                 }
                 else {
@@ -81,9 +114,19 @@ class Registration extends React.Component {
 
                     reader.readAsDataURL(file);
                 }
-                break;        
+                break;
             default:
-                this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                if (name === 'login' || name === "email") {
+                    this.setState({
+                        [name]: ev.target.value, 
+                        formValid: this.validator.allValid(), 
+                        displayErrors4fields: errorFields,
+                        [name+"Exists"]: false
+                    });
+                } 
+                else {
+                    this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                }
                 break;
         }
 
@@ -93,38 +136,49 @@ class Registration extends React.Component {
         }
     }
 
-    validateValue (target) {
-        // TODO validate on client side
+    setExistsValue (name, inUse) {
+        switch (name) {
+            case 'login':
+                this.setState({loginExists: inUse});
+                break;
+            case 'email':
+                this.setState({emailExists: inUse});
+                break;
+            default:
+                break;
+        }
+    }
 
-        axios.get('/user/registration/validate/', {name: target.name, value: target.value})
+    validateValue (target) {
+
+        axios.get(`/user/check-exists?name=${target.name}&value=${target.value}`)
             .then(res => {
-                console.log(res);
+                this.setExistsValue(target.name, res.data.inUse);
             })
-            .catch(err => console.log('validateValue\n', err));
+            .catch(err => console.log(err));
     }
 
     validateValueBlurHandler = (ev) => {
         const target = ev.target;
-        if (target.value !== '' && this.state.formValid && (target.type === 'text' || target.type === 'email' ) ){
-
+        if (target.value !== ''){
             this.validateValue(target);
         }
         else {
-            this.setState({nameError: false});
+            this.setExistsValue(ev.target.name, false);
         }
     }
 
     submitFormHandler = (ev) => {
         ev.preventDefault();
-
+        console.log(this.state);
         const formdata = new FormData();
         formdata.append('login', this.state.login);
         formdata.append('email', this.state.email);
         formdata.append('password', this.state.password);
         formdata.append('passwordConfirmation', this.state.passwordConfirmation);
         formdata.append('dob', this.state.dob);
-        formdata.append('file', this.state.avatar, this.state.login+Date.now()+'.jpg'); // keep file last...
-
+        formdata.append('file', this.state.avatar, this.state.avatar.name); // keep file last...
+        console.log(this.state.avatar.name);
         // for (var key of formdata.entries()) {
         //     console.log(key[0] + ', ' + key[1])
         // }
@@ -162,7 +216,6 @@ class Registration extends React.Component {
                 <div>
                     {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
                     <form onSubmit={this.submitFormHandler}>
-
                         <FormField 
                             label="Login"
                             type="text" 
@@ -174,7 +227,8 @@ class Registration extends React.Component {
                             placeholder="Login" 
                             validator={this.validator}
                             rules="required|alpha_num|min:2"
-                            errors4Fields={this.state.displayErrors4fields} />
+                            errors4Fields={this.state.displayErrors4fields}
+                            additionalError={this.state.loginExists ? "Login in use." : null} />
 
                         <FormField 
                             label="Email"
@@ -187,7 +241,8 @@ class Registration extends React.Component {
                             placeholder="Email"
                             validator={this.validator}
                             rules="required|email"
-                            errors4Fields={this.state.displayErrors4fields} />
+                            errors4Fields={this.state.displayErrors4fields}
+                            additionalError={this.state.emailExists ? "Email in use." : null} />
                         
                         <FormField 
                             label="Password" 
@@ -195,11 +250,10 @@ class Registration extends React.Component {
                             name="password" 
                             required 
                             value={this.state.password} 
-                            changed={this.formElementChangeHandler} 
-                            blurred={this.validateValueBlurHandler}
+                            changed={this.formElementChangeHandler}
                             placeholder="Password"
                             validator={this.validator}
-                            rules="required|min:6"
+                            rules="required|password"
                             errors4Fields={this.state.displayErrors4fields} />
 
                         <FormField 
@@ -208,8 +262,7 @@ class Registration extends React.Component {
                             name="passwordConfirmation" 
                             required 
                             value={this.state.passwordConfirmation} 
-                            changed={this.formElementChangeHandler} 
-                            blurred={this.validateValueBlurHandler}
+                            changed={this.formElementChangeHandler}
                             placeholder="Confirm password"
                             validator={this.validator}
                             validatorValues={[this.state.password, this.state.passwordConfirmation]}
@@ -222,25 +275,27 @@ class Registration extends React.Component {
                             name="dob" 
                             value={this.state.dob} 
                             changed={this.formElementChangeHandler} 
-                            blurred={this.validateValueBlurHandler}
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-                            placeholder="Date of birth" />
+                            placeholder="Date of birth"
+                            validator={this.validator}
+                            rules="formatDate|dob"
+                            errors4Fields={this.state.displayErrors4fields} />
 
 
-                        <label>Select avatar: 
-                            <Input 
-                                type="file" 
-                                name="avatar" 
-                                changed={this.formElementChangeHandler} 
-                                placeholder="Avatar - picture"/>
-                        </label>
+                        <FormField 
+                            label="Select avatar" 
+                            type="file" 
+                            name="avatar" 
+                            value={this.state.avatar} 
+                            changed={this.formElementChangeHandler}
+                            imgPreviewRef={this.imgPreviewRef}
+                            placeholder="Avatar - picture"
+                            validator={this.validator}
+                            rules="fileSize|fileType"
+                            errors4Fields={this.state.displayErrors4fields} /> 
 
                         <label>
-                            <img src={require("../../../img/avatar-blank.png")} ref={this.imgPreviewRef} alt="Avatar" />
-                        </label>
-
-                        <label>
-                            <Input type="submit" name="submit" value="Go" />
+                            <FormField disabled={!this.state.formValid} type="button" name="Go" value="Go" />
                         </label>
                     </form>
                 </div>

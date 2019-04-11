@@ -38,6 +38,7 @@ const formField = props => {
                         value={props.value}
                         onChange={props.changed}
                         onBlur={props.blurred}
+                        disabled={props.disabled}
                         required={props.required}
                         onFocus={props.focused} >
                         {props.options.map(x => <option key={x.value} value={x.value}>{x.text}</option>)}
@@ -57,15 +58,17 @@ const formField = props => {
                         type={props.type}
                         name={props.name}
                         placeholder={props.placeholder}
-                        value={props.value}
+                        // value={props.value}
                         onChange={props.changed}
                         onBlur={props.blurred}
+                        disabled={props.disabled}
                         required={props.required}
                         onFocus={props.focused} />
                     <span className={classes.Error}>
                         {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
                             props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
                     </span>
+                    <img className={classes.ImgPreview} src={require("../../../img/avatar-blank.png")} ref={props.imgPreviewRef} alt="Avatar" />
                 </label>
             );
             break;
@@ -74,7 +77,9 @@ const formField = props => {
                 <div className={classes.FormField}>
                     <button 
                         className={classes.Button}
-                        onClick={props.clicked} >{props.name}</button>
+                        disabled={props.disabled}
+                        onClick={props.clicked} >
+                        {props.name}</button>
                 </div>
             );
             break;
@@ -89,10 +94,12 @@ const formField = props => {
                         value={props.value}
                         onChange={props.changed}
                         onBlur={props.blurred}
+                        disabled={props.disabled}
                         required={props.required}
                         pattern={props.pattern}
                         onFocus={props.focused} />
                     <span className={classes.Error}>
+                        {props.additionalError ? props.additionalError : null}
                         {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
                             props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
                     </span>
@@ -100,7 +107,6 @@ const formField = props => {
             );
             break;
     }
-
 
     return content;
 };

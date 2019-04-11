@@ -12,14 +12,14 @@ export class Timeout {
 
 /** getReducedArray - get array with removed elements of second array
  * array: []
- * toRemve: []
+ * toRemove: []
  * return: []
  */
-export function getReducedArray(array, toRemve) {
+export function getReducedArray(array, toRemove) {
     let reduced = [...array];
     for (let i = reduced.length - 1; i >= 0; i--) {
-        for (let j = 0; j < toRemve.length; j++) {
-            if (reduced[i] && (reduced[i].id === toRemve[j].id)) {
+        for (let j = 0; j < toRemove.length; j++) {
+            if (reduced[i] && (reduced[i].id === toRemove[j].id)) {
                 reduced.splice(i, 1);
             }
         }
@@ -81,4 +81,29 @@ export function convertToInputDateFormat(date) {
     else {
         return date;
     }
+}
+
+export function isCorrectDate(date) {
+    const d = new Date (date);
+    let month = d.getMonth()+1;
+    if (month < 10) month = "0"+month;    
+    let day = d.getDate();
+    if (day < 10) day = "0"+day;    
+    let parsedDate = d.getFullYear()+'-'+month+'-'+day;
+    if (date.length > 10) {
+        let hh = d.getHours();
+        if (hh < 10) hh = "0"+hh;
+        let mm = d.getMinutes();
+        if (mm < 10) mm = "0"+mm;
+        parsedDate += 'T'+hh+":"+mm;
+    }
+    return date === parsedDate;
+}
+
+export function isDob(date) {
+    const dob = Date.parse(date);
+    const today = Date.now();
+    let yesterday = new Date( today - 24*60*60*1000 );
+    yesterday.setFullYear(yesterday.getFullYear() - 100); // 100 years in past
+    return dob <= today && dob > yesterday;
 }

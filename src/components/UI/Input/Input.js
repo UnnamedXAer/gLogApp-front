@@ -12,7 +12,8 @@ const input = props => <input
     onBlur={props.blurred}
     required={props.required}
     pattern={props.pattern}
-    onFocus={props.focused} />;
+    onFocus={props.focused}
+    disabled={props.disabled} />;
 
 
 export default input;
