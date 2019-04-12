@@ -50,13 +50,13 @@ class Login extends React.Component {
                 });
         }
     }
-    i = 0;
+
     render () {
 
         const validationErrors = this.state.validationErrors.map((x, index) => { 
             return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
         });
-        console.log('rendered ', ++this.i, ' times\n', validationErrors, this.state.validationErrors);
+        
         return (
             <div className={classes.Login} >
                 {this.state.redirect ? <Redirect to="/home" /> : null}

@@ -6,6 +6,8 @@ import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import FormField from '../../../components/UI/FormField/FormField';
+import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
+import Backdrop from '../../../components/UI/Backdrop/Backdrop';
 import { isCorrectDate, isDob } from '../../../utility';
 
 class Registration extends React.Component {
@@ -24,7 +26,8 @@ class Registration extends React.Component {
             displayErrors4fields: [],
             loginExists: false,
             emailExists: false,
-            formValid: false
+            formValid: false,
+            showSpinner: false
         }
 
         this.imgPreviewRef = React.createRef();
@@ -34,7 +37,7 @@ class Registration extends React.Component {
                     password: {
                         message: "Password must be 6+ chars long, contain number and uppercase and lowercase letter.",
                         rule: (val, params, validator) => {
-                            return (new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)).test(val);
+                            return (new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)).test(val);
                         },
                     },
                     passwordConfirmation: {  // name the rule
@@ -60,7 +63,7 @@ class Registration extends React.Component {
                     fileSize: {
                         message: 'File size limit is 2MB.',
                         rule: (val, params, validator) => {
-                            return val.size < (0.5 * 1024 * 1024);
+                            return val.size < (2 * 1024 * 1024);
                         }
                     },
                     fileType: {
@@ -169,6 +172,7 @@ class Registration extends React.Component {
     }
 
     submitFormHandler = (ev) => {
+        this.setState({showSpinner: true});
         ev.preventDefault();
         console.log(this.state);
         const formdata = new FormData();
@@ -189,7 +193,7 @@ class Registration extends React.Component {
             }
         })
         .then(res => {
-            if (res.data.errors) {
+            if (res.data.successful) {
                 this.setState({validationErrors: res.data.errors});
                 window.scrollTo(0, 0);
             }
@@ -199,6 +203,9 @@ class Registration extends React.Component {
         })
         .catch(err => {
 
+        })
+        .finally(() => {
+            this.setState({showSpinner: false});
         })
     }
 
@@ -211,7 +218,9 @@ class Registration extends React.Component {
 
         return (
             <div className={classes.Registration} >
-                {this.state.redirect ? <Redirect to="/" exact /> : null}
+                {/* {this.state.redirect ? <Redirect to="/" exact /> : null} */}
+                <Backdrop show={this.state.showSpinner} /> 
+                {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
                 <h3>Registration</h3>
                 <div>
                     {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
@@ -293,9 +302,14 @@ class Registration extends React.Component {
                             validator={this.validator}
                             rules="fileSize|fileType"
                             errors4Fields={this.state.displayErrors4fields} /> 
-
+                            <br />
+                            <br />
+                            <br />
+                            <br />
+                            <br />
+                            <br />
                         <label>
-                            <FormField disabled={!this.state.formValid} type="button" name="Go" value="Go" />
+                            <FormField disabled={!this.state.formValid || this.state.showSpinner} type="button" name="Go" value="Go" />
                         </label>
                     </form>
                 </div>
