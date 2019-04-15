@@ -8,7 +8,7 @@ import Modal from '../../components/UI/Modal/Modal';
 import TrainingSummary from '../../components/Training/TrainingSummary/TrainingSummary';
 
 import axios from '../../axios-dev';
-import { convertToInputDateFormat } from '../../utility';
+import { convertToInputDateFormat } from '../../utils/utility';
 
 class Training extends Component {
     constructor (props) {

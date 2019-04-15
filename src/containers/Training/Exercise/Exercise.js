@@ -9,7 +9,7 @@ import ExerciseLookup from '../../ExerciseLookup/ExerciseLookup';
 import RoundButton from '../../../components/UI/RoundButton/RoundButton';
 import Confirm from '../../../components/UI/Confirm/Confirm';
 // import axios from '../../../axios-dev';
-// import { convertToInputDateFormat } from '../../../utility';
+// import { convertToInputDateFormat } from '../../../utils/utility';
 
 
 class Exercise extends React.Component {

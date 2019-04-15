@@ -1,4 +1,9 @@
-
+/**
+ *
+ *
+ * @export
+ * @class Timeout
+ */
 export class Timeout {
     constructor(fn, interval) {
         var id = setTimeout(fn, interval);
@@ -10,10 +15,12 @@ export class Timeout {
     }
 }
 
-/** getReducedArray - get array with removed elements of second array
- * array: []
- * toRemove: []
- * return: []
+/**
+ * Get array with removed elements of second array.
+ * @export
+ * @param {[]} array
+ * @param {[]} toRemove
+ * @returns []
  */
 export function getReducedArray(array, toRemove) {
     let reduced = [...array];
@@ -27,12 +34,15 @@ export function getReducedArray(array, toRemove) {
     return reduced;
 }
 
-/** positionInArray - get indefx of element in array by specific property name
- * arr: [],
- * prop: number | string
- * name: string
- * return: position: number
- *  */ 
+/**
+ * get index of element in array by specific property name
+ *
+ * @export
+ * @param {[]} arr []
+ * @param {string} prop
+ * @param {string} name
+ * @returns number
+ */
 export function positionInArray (arr, prop, name) {
     
     if (arr.length > 0) {
@@ -47,7 +57,9 @@ export function positionInArray (arr, prop, name) {
     return -1;
 }
 
-
+/**
+ * Compare to objects by "name" property/
+ */
 export function compareByNameProperty(a, b) {
     const valA = a.name.toLowerCase();
     const valB = b.name.toLowerCase();
@@ -58,7 +70,9 @@ export function compareByNameProperty(a, b) {
     return 0;
  }
 
-
+/**
+ * Convert date object to input[type="date"] format string.
+ */
 export function convertToInputDateFormat(date) {
     if (typeof date === "object") {  //eg. new Date()
         let month = date.getMonth()+1;
@@ -83,6 +97,9 @@ export function convertToInputDateFormat(date) {
     }
 }
 
+/**
+ * Check if given string is correct date.
+ */
 export function isCorrectDate(date) {
     const d = new Date (date);
     let month = d.getMonth()+1;
@@ -100,10 +117,19 @@ export function isCorrectDate(date) {
     return date === parsedDate;
 }
 
+/**
+ * Check if date is between yesterday nad 100 years ago.
+ */
 export function isDob(date) {
     const dob = Date.parse(date);
     const today = Date.now();
     let yesterday = new Date( today - 24*60*60*1000 );
     yesterday.setFullYear(yesterday.getFullYear() - 100); // 100 years in past
     return dob <= today && dob > yesterday;
+}
+/**
+ * Remove leading and trailing spaces.
+ */
+export function trim(value) {
+    return value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
 }

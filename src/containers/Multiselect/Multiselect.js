@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import SelectedElement from '../../components/UI/Multiselect/SelectedElement/SelectedElement';
 import MultiselectInput from '../../components/UI/Multiselect/MultiselectInput/MultiselectInput';
 import MultiselectSelectBox from '../../components/UI/Multiselect/MultiselectSelectBox/MultiselectSelectBox';
-import { getReducedArray, compareByNameProperty as compare } from '../../utility';
+import { getReducedArray, compareByNameProperty as compare } from '../../utils/utility';
 import classes from './Multiselect.module.css';
 
 class Multiselect extends Component {

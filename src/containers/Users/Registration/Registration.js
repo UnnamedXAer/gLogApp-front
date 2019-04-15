@@ -8,7 +8,7 @@ import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import FormField from '../../../components/UI/FormField/FormField';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
-import { isCorrectDate, isDob } from '../../../utility';
+import { isCorrectDate, isDob } from '../../../utils/utility';
 
 class Registration extends React.Component {
 
@@ -80,31 +80,10 @@ class Registration extends React.Component {
     formElementChangeHandler = (ev) => {
         const name = ev.target.name;
 
-        let errorFields = [...this.state.displayErrors4fields];
-        switch (name) {
-            case 'file':
-            case 'dob':
-                const posInErrors = errorFields.indexOf(name);
-                if (ev.target.value === "" && posInErrors > -1) {
-                    errorFields.splice(posInErrors, 1);
-                }
-                else if (ev.target.value !== "" && posInErrors === -1) {
-                    errorFields.push(name);
-                }
-                break;
-        
-            default: // password, confirmPassword, login, email
-                if (ev.target.value !== "" && errorFields.indexOf(name) === -1) {
-                    errorFields.push(name);
-                }
-                break;
-        }
-
-
         switch (ev.target.type) {
             case 'file':
                 const file = ev.target.files[0];
-                this.setState({[name]: file, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                this.setState({[name]: file});
 
                 if (!file) {    
                     this.imgPreviewRef.current.src = require("../../../img/avatar-blank.png");
@@ -121,22 +100,17 @@ class Registration extends React.Component {
             default:
                 if (name === 'login' || name === "email") {
                     this.setState({
-                        [name]: ev.target.value, 
-                        formValid: this.validator.allValid(), 
-                        displayErrors4fields: errorFields,
+                        [name]: ev.target.value,
                         [name+"Exists"]: false
                     });
                 } 
                 else {
-                    this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                    this.setState({
+                        [name]: ev.target.value
+                    });
                 }
                 break;
-        }
-
-        if (!this.state.formValid) {
-            this.validator.showMessages();
-            this.forceUpdate();
-        }
+        }      
     }
 
     setExistsValue (name, inUse) {
@@ -169,9 +143,52 @@ class Registration extends React.Component {
         else {
             this.setExistsValue(ev.target.name, false);
         }
+        this.checkSimplyValidator(ev.target.name, ev.target.value);
+        this.validator.showMessages();
+        this.forceUpdate();
+    }
+
+    showErrorsBlurHandler = (ev) => {
+        this.checkSimplyValidator(ev.target.name, ev.target.value);
+        this.validator.showMessages();
+        this.forceUpdate();
+    }
+
+    checkSimplyValidator = (name, value) => {
+        let errorFields = [...this.state.displayErrors4fields];
+        switch (name) {
+            case 'file':
+            case 'dob':
+                const posInErrors = errorFields.indexOf(name);
+                if (value === "" && posInErrors > -1) {
+                    errorFields.splice(posInErrors, 1);
+                }
+                else if (value !== "" && posInErrors === -1) {
+                    errorFields.push(name);
+                }
+                break;
+        
+            default: // password, confirmPassword, login, email
+                if (value !== "" && errorFields.indexOf(name) === -1) {
+                    errorFields.push(name);
+                }
+                break;
+        }
+
+        this.setState({formValid: this.validator.allValid(), displayErrors4fields: errorFields});  
     }
 
     submitFormHandler = (ev) => {
+        let formOk = true;
+        const validatorFields = this.validator.fields;
+        for(let i = validatorFields-1; i >= 0; i--) {
+            if (!validatorFields[i]) {
+                formOk = false;
+                break;
+            }
+        }
+        console.log(this.validator.fields);
+
         this.setState({showSpinner: true});
         ev.preventDefault();
         console.log(this.state);
@@ -215,6 +232,22 @@ class Registration extends React.Component {
             return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
         });
 
+        let formOk = true;
+
+        const values = Object.values(this.validator.fields);
+        console.log(this.validator.fields);
+
+        if (this.emailExists || this.state.loginExists || values.length < 4) {
+            formOk = false;
+        }
+        else {
+            for (let index = 0; index < values.length; index++) {
+                if (values[index] === false) {
+                    formOk = false;
+                    break;
+                }
+            }
+        }
 
         return (
             <div className={classes.Registration} >
@@ -260,6 +293,7 @@ class Registration extends React.Component {
                             required 
                             value={this.state.password} 
                             changed={this.formElementChangeHandler}
+                            blurred={this.showErrorsBlurHandler}
                             placeholder="Password"
                             validator={this.validator}
                             rules="required|password"
@@ -272,6 +306,7 @@ class Registration extends React.Component {
                             required 
                             value={this.state.passwordConfirmation} 
                             changed={this.formElementChangeHandler}
+                            blurred={this.showErrorsBlurHandler}
                             placeholder="Confirm password"
                             validator={this.validator}
                             validatorValues={[this.state.password, this.state.passwordConfirmation]}
@@ -284,12 +319,12 @@ class Registration extends React.Component {
                             name="dob" 
                             value={this.state.dob} 
                             changed={this.formElementChangeHandler} 
+                            blurred={this.showErrorsBlurHandler}
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                             placeholder="Date of birth"
                             validator={this.validator}
                             rules="formatDate|dob"
                             errors4Fields={this.state.displayErrors4fields} />
-
 
                         <FormField 
                             label="Select avatar" 
@@ -297,19 +332,17 @@ class Registration extends React.Component {
                             name="avatar" 
                             value={this.state.avatar} 
                             changed={this.formElementChangeHandler}
+                            blurred={this.showErrorsBlurHandler}
                             imgPreviewRef={this.imgPreviewRef}
                             placeholder="Avatar - picture"
                             validator={this.validator}
                             rules="fileSize|fileType"
                             errors4Fields={this.state.displayErrors4fields} /> 
-                            <br />
-                            <br />
-                            <br />
-                            <br />
-                            <br />
-                            <br />
+
                         <label>
-                            <FormField disabled={!this.state.formValid || this.state.showSpinner} type="button" name="Go" value="Go" />
+                            <FormField 
+                             disabled={!formOk || this.state.showSpinner} 
+                            type="button" name="Go" value="Go" />
                         </label>
                     </form>
                 </div>
