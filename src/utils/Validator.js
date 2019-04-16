@@ -1,13 +1,13 @@
 import { isCorrectDate, isDob, trim } from './utility';
 
 
-export class Validator {
-    constructor() {
+export default class Validator {
+    constructor(feed) {
         this.fields = {};
         this.rules = {
             required: {
-                message: ":attribute is required.",
-                test: val => typeof val !== 'undefied' && trim(val) !== "",
+                message: "The :attribute is required.",
+                test: val => trim(val) !== "",
             },
             isNum: {
                 message: "The :attribute is not a numeric value",
@@ -27,26 +27,27 @@ export class Validator {
             },
             min: {
                 message: 'The :attribute must be :value+ chars long.',
-                test: (val) => {
-                  return val.length > 1;
+                test: (val, param) => {
+                  return val.length > param;
                 }
             },
-            min: {
-                message: 'The :attribute must be can be max :value chars long.',
-                test: (val) => {
-                  return val.length > 1;
+            max: {
+                message: 'The :attribute must be can be max :param chars long.',
+                test: (val, param) => {
+                  return val.length > param;
                 }
             },
             password: {
-                message: "Password must be 6+ chars long, contain number and uppercase and lowercase letter.",
-                test: (val) => {
-                    return (new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)).test(val);
+                message: "The :attribute must contain number and uppercase and lowercase letter.",
+                test: (val, param) => {
+                    return new RegExp(/*/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/*/ param).test(val);
                 }
             },
             passwordConfirmation: {  // name the rule
                 message: 'The passwords do not match.',
-                test: (val) => {
-                    return val[0] === val[1];
+                test: (val, param) => {
+                    console.log(param)
+                    return val === param; 
                 }
             },
             formatDate: {
@@ -56,29 +57,36 @@ export class Validator {
                 }
             },
             dob: {
-                message: "Not a valid date of birth.",
+                message: "The date is not a valid date of birth.",
                 test: (val) => {
                     return isDob(val);
                 }
             },
             fileSize: {
-                message: 'File size limit is 2MB.',
-                test: (val) => {
-                    return val.size < (2 * 1024 * 1024);
+                message: 'File size limit is :paramMB.',
+                test: (val, param) => {
+                    return val.size < (param * 1024 * 1024);
                 }
             },
-            fileType: {
+            isImage: {
                 message: 'File type can be only png, jpg or gif.',
                 test: (val) => {
                     return val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif';
                 }
             }
         }
+        this.registerFields(feed);
     }
 
-    setField = (name) => {
-        this.fields[name] = {
-            rules: [],   // :[]rule
+    registerFields = (fieldsArr) => {
+        fieldsArr.forEach(field => this.setField(field));
+    }
+
+    setField = (field) => {
+        this.fields[field.name] = {
+            rules: field.rules,   // :[]rule
+            required: (field.rules.indexOf('required') > -1),
+            params: field.params ? field.params : {},
             errors: [], // :[]String
             edited: false,
             passed: true,
@@ -103,7 +111,7 @@ export class Validator {
         this.fields[name].edited = true;
     }
 
-    setRules = (fieldName, [ruleNames]) => {
+    setRules = (fieldName, ruleNames) => {
         for (let i = 0; i < ruleNames.length; i++){
             this.fields[fieldName].rules.push(ruleNames[i]);
         }
@@ -123,8 +131,8 @@ export class Validator {
     getMessages = (name) => {
         let messages = [];
         
-        messages.concat(this.fields[name].customErrors);
-        messages.concat(this.fields[name].errors);
+        messages = messages.concat(this.fields[name].customErrors);
+        messages = messages.concat(this.fields[name].errors);
         // for(let i = 0; i < this.fields[name].customErrors.length; i++) {
         //     messages.push()
         // }
@@ -132,41 +140,53 @@ export class Validator {
         return messages;
     }
 
-    validateField = (field, val) => {
-        //const field = this.fields[name];
+    validateField = (name, val) => {
+        const field = this.fields[name];
         if (field.rules.length === 0) {
-            console.error('No rules for: ', field.name);
-            return;
+            console.error('No rules for: ', name);
+            return false;
+        }
+
+        if (!field.required && val === "") {
+            field.errors = [];
+            return true;
         }
 
         const fieldRules = field.rules;
-
-        for(let i = 0; i < fieldRules.length; i++) {
-            let rule = this.rules[fieldRules[i]]
-            let passed = rule.test(val);
+        field.errors = [];
+        field.edited = true;
+        for (let i = 0; i < fieldRules.length; i++) {
+            const ruleName = fieldRules[i];
+            let rule = this.rules[ruleName];
+            const ruleParam = field.params[ruleName];
+            let passed = rule.test(val, ruleParam);
             if (!passed) {
                 field.passed = false;
                 let message = rule.message;
-                field.errors.push(message.replace(':attribute', field.name));
+                message.replace(':attribute', name);
+                if (ruleParam) {
+                    message.replace(':param', ruleParam);
+                }
+                field.errors.push(message);
                 return false;
             }
         }
         return true;
     }
 
-    validate = (state) => {
+    validateAll = (state) => {
         
         for (let i = this.fields.length -1; i >= 0; i--) {
-            this.validateField(this.fields[i], state[this.field.name]);
+            this.validateField(this.fields[i].name, state[this.field.name]);
         }
     }
 
-    isValid = () => {
+    allValid = () => {
         for (let i = this.fields.length -1; i >= 0; i--) {
             if (!this.fields[i]) {
                 return false;
             }
         }
         return true;
-    };
+    }
 } 

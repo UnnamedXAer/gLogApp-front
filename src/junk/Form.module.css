@@ -1,0 +1,32 @@
+.Registration {
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+}
+
+.Registration label {
+    margin: 15px 0px 3px 0px;
+    font-size: 1.2em;
+    display: block;
+}
+
+.SpinnerWrapper {
+    box-sizing: border-box;
+    margin: 0px auto;
+    top: 25%;
+    left: 15%;
+    position: absolute;
+    width: 70%;
+    height: 40%;
+}
+
+.Error {
+    color: rgb(201, 22, 22);
+    font-size: 0.8em;
+    /* margin: 5px; */
+    font-style: italic;
+}
+
+.Error p:first-letter  {
+    text-transform: capitalize;
+}

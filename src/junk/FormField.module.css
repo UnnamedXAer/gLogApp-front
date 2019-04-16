@@ -1,0 +1,64 @@
+.FormField {
+    margin: 15px 0px 3px 0px;
+    font-size: 1.2em;
+    display: block;
+    width: 100%;
+}
+
+.Button {
+    font-size: 1.3em;
+    height: 30px;
+    width: 90%;
+    display: block;
+    border: none;
+    margin: 0px 5%;
+}
+
+.Input {
+    /* line-height: 1.4em; */
+    font-size: 1.3em;
+    height: 30px;
+    width: 90%;
+    display: block;
+    border: none;
+    margin: 0px 5%;
+}
+
+.Input[type=file] {
+    font-size: 0.9em;
+}
+
+.ImgPreview {
+    max-width: 90%;
+    max-height: 150px;
+    margin: 0px 5%;
+}
+
+.Textarea {
+    width: 90%;
+    box-sizing: border-box;
+    border: 1px solid gray;
+    margin: 0px 5%;
+}
+
+
+.Select {
+    height: 2em;
+    line-height: 1.4em;
+    font-size: 1.0em;
+    width: 90%;
+    /* background-color: coral; */
+    margin: 0px 5%;
+
+}
+
+.Error {
+    color: rgb(201, 22, 22);
+    font-size: 0.8em;
+    /* margin: 5px; */
+    font-style: italic;
+}
+
+.Error p:first-letter  {
+    text-transform: capitalize;
+}
