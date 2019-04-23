@@ -59,6 +59,6 @@
     font-style: italic;
 }
 
-.Error p:first-letter  {
+.Error ul:first-letter  {
     text-transform: capitalize;
 }

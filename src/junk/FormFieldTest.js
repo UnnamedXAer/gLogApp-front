@@ -5,6 +5,18 @@ import classes from './FormField.module.css';
 const formFieldTest = props => {
 
     let content = null;
+    let errors = [];
+    if (props.validator) {
+        errors = props.validator.getMessages(props.name);
+    }
+
+    const errorsElement = <span className={classes.Error}>
+        {errors && errors.length > 0 ? (
+            <ul>
+                {errors.map((err, index) => <li key={index}>{err}</li>)}  
+            </ul>
+        ) : null}
+    </span>
 
     switch (props.type) {
         case 'textarea':
@@ -22,9 +34,7 @@ const formFieldTest = props => {
                         required={props.required}
                         pattern={props.pattern}
                         onFocus={props.focused} />
-                    <span className={classes.Error}>
-                        {props.errors}
-                    </span>
+                    {errorsElement}
                 </label>
             );
             break;
@@ -42,9 +52,7 @@ const formFieldTest = props => {
                         onFocus={props.focused} >
                         {props.options.map(x => <option key={x.value} value={x.value}>{x.text}</option>)}
                     </select>
-                    <span className={classes.Error}>
-                        {props.errors}
-                    </span>
+                    {errorsElement}
                 </label>          
             );
             break;
@@ -62,13 +70,7 @@ const formFieldTest = props => {
                         disabled={props.disabled}
                         required={props.required}
                         onFocus={props.focused} />
-                    <span className={classes.Error}>
-                        {props.errors && props.errors.length > 0 ? (
-                            <ul>
-                                {props.errors.map((err, index) => <li key={index}>{err}</li>)}  
-                            </ul>
-                        ) : null}
-                    </span>
+                    {errorsElement}
                     <img className={classes.ImgPreview} src={require("../img/avatar-blank.png")} ref={props.imgPreviewRef} alt="Avatar" />
                 </label>
             );
@@ -99,9 +101,7 @@ const formFieldTest = props => {
                         required={props.required}
                         pattern={props.pattern}
                         onFocus={props.focused} />
-                    <span className={classes.Error}>
-                        {props.errors}
-                    </span>
+                    {errorsElement}
                 </label>
             );
             break;

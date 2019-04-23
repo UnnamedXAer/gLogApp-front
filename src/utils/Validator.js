@@ -4,12 +4,12 @@ import { isCorrectDate, isDob, trim } from './utility';
 export default class Validator {
     constructor(feed) {
         this.fields = {};
-        this.rules = {
+        this.rules = { // returned true if value is OK.
             required: {
                 message: "The :attribute is required.",
                 test: val => trim(val) !== "",
             },
-            isNum: {
+            num: {
                 message: "The :attribute is not a numeric value",
                 test: val => this.testRegex(val, /^(\d+.?\d*)?$/)
             },
@@ -26,15 +26,15 @@ export default class Validator {
                 }
             },
             min: {
-                message: 'The :attribute must be :value+ chars long.',
+                message: 'The :attribute must be :param+ chars long.',
                 test: (val, param) => {
-                  return val.length > param;
+                  return val.length >= param;
                 }
             },
             max: {
-                message: 'The :attribute must be can be max :param chars long.',
+                message: 'The :attribute must be max :param chars long.',
                 test: (val, param) => {
-                  return val.length > param;
+                  return val.length <= param;
                 }
             },
             password: {
@@ -68,10 +68,16 @@ export default class Validator {
                     return val.size < (param * 1024 * 1024);
                 }
             },
-            isImage: {
+            image: {
                 message: 'File type can be only png, jpg or gif.',
                 test: (val) => {
                     return val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif';
+                }
+            },
+            notAllowed: {
+                message: 'Value :value not allowed',
+                test: (val, param) => {
+                    return param.indexOf(val) === -1;
                 }
             }
         }
@@ -90,7 +96,7 @@ export default class Validator {
             errors: [], // :[]String
             edited: false,
             passed: true,
-            customErrors: [] // :[]String
+            customError: "" // :String
         }
     }
 
@@ -118,26 +124,20 @@ export default class Validator {
     }
 
     addCustomError = (fieldName, message) => {
-        this.fields[fieldName].customErrors.push(message);
+        return this.fields[fieldName].customError = (message);
     }
 
-    removeCustomError = (fieldName, message) => {
-        const index = this.fields[fieldName].customErrors.indexOf(message);
-        if (index > -1) {
-            this.fields[fieldName].customErrors.splice(index, 1);
-        }
+    removeCustomError = (fieldName) => {
+        this.fields[fieldName].customError = "";
     }
 
     getMessages = (name) => {
-        let messages = [];
+        if (!this.fields[name]) 
+            return [];
+        if (this.fields[name].customError)
+            return [this.fields[name].customError, ...this.fields[name].errors];
         
-        messages = messages.concat(this.fields[name].customErrors);
-        messages = messages.concat(this.fields[name].errors);
-        // for(let i = 0; i < this.fields[name].customErrors.length; i++) {
-        //     messages.push()
-        // }
-
-        return messages;
+        return this.fields[name].errors;
     }
 
     validateField = (name, val) => {
@@ -146,9 +146,10 @@ export default class Validator {
             console.error('No rules for: ', name);
             return false;
         }
+        field.customError = "";
+        field.errors = [];
 
         if (!field.required && val === "") {
-            field.errors = [];
             return true;
         }
 
@@ -163,9 +164,10 @@ export default class Validator {
             if (!passed) {
                 field.passed = false;
                 let message = rule.message;
-                message.replace(':attribute', name);
+                message = message.replace(':attribute', name);
+                message = message.replace(':value', val);
                 if (ruleParam) {
-                    message.replace(':param', ruleParam);
+                    message = message.replace(':param', ruleParam);
                 }
                 field.errors.push(message);
                 return false;

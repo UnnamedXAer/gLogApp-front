@@ -34,8 +34,8 @@ class Form extends React.Component {
         this.validator = new Validator([
             {
                 name: 'login',
-                rules: ['required', 'alpha_num', 'min'],
-                params: {min: 2}
+                rules: ['required', 'alpha_num', 'min', 'notAllowed'],
+                params: {min: 2, notAllowed: ['admin', 'administrator', 'moderator', 'null', 'undefined']}
             },
             {
                 name: 'email',
@@ -49,7 +49,7 @@ class Form extends React.Component {
             {
                 name: 'passwordConfirmation',
                 rules: ['required', 'passwordConfirmation'],
-                params: {passwordConfirmation: this.getStateParamValue('password')}
+                params: {passwordConfirmation: this.getStateParamValue('password')} // todo: wrongaosswordpassed
             },
             {
                 name: 'dob',
@@ -57,7 +57,7 @@ class Form extends React.Component {
             },
             {
                 name: 'avatar',
-                rules: ['isImage', 'fileSize'],
+                rules: ['image', 'fileSize'],
                 params: {fileSize: 2}
             },
         ]);
@@ -122,10 +122,10 @@ class Form extends React.Component {
             .then(res => {
                 //this.setExistsValue(target.name, res.data.inUse);
                 if (res.data.inUse) {
-                    this.validator.fields[target.name].customErrors = [target.name+' in use.'];
+                    this.validator.fields[target.name].customError = target.name + ' in use.';
                 }
                 else {
-                    this.validator.fields[target.name].customErrors = [];
+                    this.validator.fields[target.name].customError = "";
                 }
                 this.setState({[target.name+'Errors']: this.validator.getMessages(target.name)});
             })
@@ -210,8 +210,8 @@ class Form extends React.Component {
                             value={this.state.login} 
                             changed={this.formElementChangeHandler} 
                             blurred={this.validateValueBlurHandler}
-                            placeholder="Login" 
-                            errors={this.state.loginErrors}
+                            placeholder="Login"
+                            validator={this.validator}
                             />
 
                         <FormFieldTest 
@@ -224,9 +224,7 @@ class Form extends React.Component {
                             blurred={this.validateValueBlurHandler}
                             placeholder="Email"
                             validator={this.validator}
-                            rules="required|email"
-                            errors4Fields={this.state.displayErrors4fields}
-                            additionalError={this.state.emailExists ? "Email in use." : null} />
+                             />
                         
                         <FormFieldTest 
                             label="Password" 
@@ -238,8 +236,7 @@ class Form extends React.Component {
                             blurred={this.showErrorsBlurHandler}
                             placeholder="Password"
                             validator={this.validator}
-                            rules="required|password"
-                            errors4Fields={this.state.displayErrors4fields} />
+                             />
 
                         <FormFieldTest 
                             label="Confirm Password" 
@@ -251,9 +248,7 @@ class Form extends React.Component {
                             blurred={this.showErrorsBlurHandler}
                             placeholder="Confirm password"
                             validator={this.validator}
-                            validatorValues={[this.state.password, this.state.passwordConfirmation]}
-                            rules="required|passwordConfirmation"
-                            errors4Fields={this.state.displayErrors4fields} />
+                             />
 
                         <FormFieldTest 
                             label="Date of birth" 
@@ -265,8 +260,7 @@ class Form extends React.Component {
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                             placeholder="Date of birth"
                             validator={this.validator}
-                            rules="formatDate|dob"
-                            errors4Fields={this.state.displayErrors4fields} />
+                             />
 
                         <FormFieldTest 
                             label="Select avatar" 
@@ -278,8 +272,7 @@ class Form extends React.Component {
                             imgPreviewRef={this.imgPreviewRef}
                             placeholder="Avatar - picture"
                             validator={this.validator}
-                            rules="fileSize|fileType"
-                            errors4Fields={this.state.displayErrors4fields} /> 
+                             /> 
 
                         <label>
                             <FormFieldTest 
