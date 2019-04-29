@@ -204,7 +204,7 @@ class Registration extends React.Component {
         //     console.log(key[0] + ', ' + key[1])
         // }
 
-        axios.post('/user/new', formdata, {
+        axios.post('/auth/register', formdata, {
             onUploadProgress: ProgressEvent => {
                 console.log('Uploaded: '+Math.round(ProgressEvent.loaded / ProgressEvent.total * 100)+'%.');
             }

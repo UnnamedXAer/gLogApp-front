@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
+  withCredentials:true,
       baseURL: 'http://localhost:3030'
     //  baseURL: 'http://628b79f9.ngrok.io'
     // baseURL: 'http://10.1.13.174:8080/'

@@ -36,7 +36,7 @@ class Login extends React.Component {
         }
         else {
             this.setState({showSpinner: true});
-            axios.post('/api/login', {login: login, password: password})
+            axios.post('/auth/login', {login: login, password: password})
                 .then(res => {
                     if (res.data.errors) {
                         this.setState({validationErrors: res.data.errors, showSpinner: false});
