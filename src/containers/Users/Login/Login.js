@@ -42,6 +42,8 @@ class Login extends React.Component {
                         this.setState({validationErrors: res.data.errors, showSpinner: false});
                     }
                     else {
+                        localStorage.setItem('user_id', res.data.user.id);
+                        console.log(localStorage.getItem('user_Id'));
                         this.setState({redirect: true});
                     }
                 })
@@ -59,7 +61,7 @@ class Login extends React.Component {
 
         return (
             <div className={classes.Login} >
-                {this.state.redirect ? <Redirect to="/home" /> : null}
+                {this.state.redirect ? <Redirect to={(this.props.location.state || { from: { pathname: '/home' } })} /> : null}
                 <Backdrop show={this.state.showSpinner} /> 
                 {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
                 <form onSubmit={this.formSubmitHandler} >

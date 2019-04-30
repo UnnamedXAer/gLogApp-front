@@ -2,21 +2,9 @@ import React from 'react';
 import classes from './FormField.module.css';
 
 
-const formFieldTest = props => {
+const formField = props => {
 
     let content = null;
-    let errors = [];
-    if (props.validator) {
-        errors = props.validator.getMessages(props.name);
-    }
-
-    const errorsElement = <span className={classes.Error}>
-        {errors && errors.length > 0 ? (
-            <ul>
-                {errors.map((err, index) => <li key={index}>{err}</li>)}  
-            </ul>
-        ) : null}
-    </span>
 
     switch (props.type) {
         case 'textarea':
@@ -34,7 +22,10 @@ const formFieldTest = props => {
                         required={props.required}
                         pattern={props.pattern}
                         onFocus={props.focused} />
-                    {errorsElement}
+                    <span className={classes.Error}>
+                        {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
+                            props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
+                    </span>
                 </label>
             );
             break;
@@ -52,7 +43,10 @@ const formFieldTest = props => {
                         onFocus={props.focused} >
                         {props.options.map(x => <option key={x.value} value={x.value}>{x.text}</option>)}
                     </select>
-                    {errorsElement}
+                    <span className={classes.Error}>
+                        {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
+                            props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
+                    </span>
                 </label>          
             );
             break;
@@ -70,7 +64,10 @@ const formFieldTest = props => {
                         disabled={props.disabled}
                         required={props.required}
                         onFocus={props.focused} />
-                    {errorsElement}
+                    <span className={classes.Error}>
+                        {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
+                            props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
+                    </span>
                     <img className={classes.ImgPreview} src={require("../../../img/avatar-blank.png")} ref={props.imgPreviewRef} alt="Avatar" />
                 </label>
             );
@@ -101,7 +98,11 @@ const formFieldTest = props => {
                         required={props.required}
                         pattern={props.pattern}
                         onFocus={props.focused} />
-                    {errorsElement}
+                    <span className={classes.Error}>
+                        {props.additionalError ? props.additionalError : null}
+                        {(props.validator && props.errors4Fields && props.errors4Fields.indexOf(props.name) > -1) ? 
+                            props.validator.message(props.name, props.validatorValues ? props.validatorValues : props.value, props.rules) : null}
+                    </span>
                 </label>
             );
             break;
@@ -111,4 +112,4 @@ const formFieldTest = props => {
 };
 
 
-export default formFieldTest;
+export default formField;

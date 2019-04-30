@@ -4,6 +4,9 @@ import MainMenuElement from '../../components/Navigation/MainMenuElement/MainMen
 import Aux from '../../hoc/Auxiliary';
 import Backdrop from '../../components/UI/Backdrop/Backdrop';
 import CloseArrow from '../../components/UI/CloseArrow/CloseArrow';
+import axios from '../../axios-dev';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import isAuthenticated from '../../auth/auth';
 
 class MainMenu extends Component {
 
@@ -40,6 +43,14 @@ class MainMenu extends Component {
         }
     ];
 
+    logoutHandler = (ev) => {
+        localStorage.removeItem('user_id');
+        axios.get('/auth/logout')
+        .then(response => {
+            this.props.history.push('/home');
+        });
+    }
+
     render () {         
         
         let attachedClasses = [classes.MainMenu, classes.Close];
@@ -59,7 +70,7 @@ class MainMenu extends Component {
                         path={x.path}
                         exact={x.exact} />))}
                     </div>
-                    <div className={classes.MenuFooter}><a href="/">Logout</a></div>
+                   <div className={classes.MenuFooter} onClick={this.logoutHandler}> {isAuthenticated() ? <a href="/">Logout</a> : null}</div>
                 </div>
             </Aux>
 
@@ -67,4 +78,4 @@ class MainMenu extends Component {
     }
 }
 
-export default MainMenu;
+export default withErrorHandler(MainMenu, axios);

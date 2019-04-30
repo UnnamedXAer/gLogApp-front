@@ -6,7 +6,7 @@ class Profile extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            joinDate: '',
+            createdOn: '',
             password: '',
             password2: '',
             userLogoURL: '#',
@@ -21,20 +21,25 @@ class Profile extends React.Component {
     } 
 
     async getUserData () {
-        axios.get('/users/id/1')
+        axios.get(`/user/me/${localStorage.getItem('user_id')}`)
         .then(response => {
-            console.log('/users/id/1', response);
-            const userData = response.data;
+            console.log('/users/id/'+localStorage.getItem('user_id'), response);
+            const userData = response.data.user;
             this.setState({
-                joinDate: userData.createdOn,
+                createdOn: userData.createdOn,
                 //userLogoURL: userData.usImgURL,
                 login: userData.login,
                 email: userData.email,
-                dob: userData.dob
+                dob: userData.dob,
             });
         })
-        .catch(response => {
-            console.log('- Profile: Get user data: ', response);
+        .catch(err => {
+            console.log('- Profile: Get user data: ', err);
+/*
+            this.state.error.statusCode === 401 ? <Redirect to={{
+                pathname:'/login',
+                state: {from: props.location} }} /> :
+                */
         })
     }
 
@@ -47,7 +52,7 @@ class Profile extends React.Component {
             <div className={classes.Profile}>
                 <h3>{this.state.login}</h3>
                 <div>
-                    <div>Join Date: <strong>{this.state.joinDate}</strong></div>
+                    <div>Join Date: <strong>{this.state.createdOn}</strong></div>
                     <div>Logo: <div><img alt="" src={this.state.userLogoURL}></img></div></div>
                     <div>Email: {this.state.email}</div>
                     <p>Change password:</p>

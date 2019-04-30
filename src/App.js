@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
+import PrivateRoute from './routes/PrivateRoute/privateRoute';
 import classes from './App.module.css';
 import Layout from './hoc/Layout/Layout';
 import Training from './containers/Training/Training';
@@ -9,6 +10,7 @@ import Registration from './containers/Users/Registration/Registration';
 import Login from './containers/Users/Login/Login';
 import AddExercise from './containers/AddExercise/AddExercise';
 import PlanConfigurator from './containers/PlanConfigurator/PlanConfigurator';
+import AnAuthorized from './components/UnAuthorized/UnAuthorized';
 //import { ToastContainer, toast } from 'react-toastify'; // TODO: uninstall if not implemented
 
 
@@ -20,12 +22,16 @@ class App extends Component {
         <BrowserRouter>
             <div className={classes.App}>
                 <Layout>
-                <Switch>
+                    <Switch>
                         <Route
-                            path="/home" exact activeElement
-                            component={Home}
+                            path="/un-authorized" exact
+                            component={AnAuthorized}
                             />
                         <Route
+                            path="/home" exact
+                            component={Home}
+                            />
+                        <PrivateRoute
                             path="/training" exact
                             component={Training}
                             />
@@ -33,7 +39,7 @@ class App extends Component {
                             path="/create-exercise" exact
                             component={AddExercise}
                             />
-                        <Route
+                        <PrivateRoute
                             path="/profile" exact
                             component={Profile}
                             />
