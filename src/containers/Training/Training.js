@@ -178,7 +178,7 @@ class Training extends Component {
         }
         return (
             <div className={classes.Training}>
-                <Redirect to="/home" />
+                {/* <Redirect to="/home" /> */}
                 <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
                     <TrainingSummary 
                         exercises={this.state.exercises} 

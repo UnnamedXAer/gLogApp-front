@@ -16,8 +16,8 @@ import Input from '../../../components/UI/Input/Input';
 class Login extends React.Component {
 
     state = {
-        login: "",
-        password: "",
+        login: "kt",
+        password: "zaqQ11",
         showSpinner: false,
         redirect: false,
         validationErrors: []
@@ -58,10 +58,10 @@ class Login extends React.Component {
         const validationErrors = this.state.validationErrors.map((x, index) => { 
             return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
         });
-
+        const { from } = (this.props.location.state || { from: { pathname: '/home' } });
         return (
             <div className={classes.Login} >
-                {this.state.redirect ? <Redirect to={(this.props.location.state || { from: { pathname: '/home' } })} /> : null}
+                {this.state.redirect ? <Redirect to={from} /> : null}
                 <Backdrop show={this.state.showSpinner} /> 
                 {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
                 <form onSubmit={this.formSubmitHandler} >

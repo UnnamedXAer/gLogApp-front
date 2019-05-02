@@ -34,11 +34,14 @@ class Profile extends React.Component {
             });
         })
         .catch(err => {
-            console.log('- Profile: Get user data: ', err);
+            if (err.response.status === 401) {
+                this.props.history.push('/login');
+            }
+
 /*
             this.state.error.statusCode === 401 ? <Redirect to={{
                 pathname:'/login',
-                state: {from: props.location} }} /> :
+                state: {from: props.location} }} /> : null
                 */
         })
     }

@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import classes from './MainMenu.module.css';
 import MainMenuElement from '../../components/Navigation/MainMenuElement/MainMenuElement';
 import Aux from '../../hoc/Auxiliary';
 import Backdrop from '../../components/UI/Backdrop/Backdrop';
 import CloseArrow from '../../components/UI/CloseArrow/CloseArrow';
 import axios from '../../axios-dev';
-import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+// import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import isAuthenticated from '../../auth/auth';
+
 
 class MainMenu extends Component {
 
@@ -47,7 +49,14 @@ class MainMenu extends Component {
         localStorage.removeItem('user_id');
         axios.get('/auth/logout')
         .then(response => {
+            console.log(this.props.history);
+            console.log(this.props);
+            this.props.backdropClicked();            
             this.props.history.push('/home');
+        })
+        .catch(err => {
+            console.log(err);
+            // todo: redirect or something
         });
     }
 
@@ -70,7 +79,7 @@ class MainMenu extends Component {
                         path={x.path}
                         exact={x.exact} />))}
                     </div>
-                   <div className={classes.MenuFooter} onClick={this.logoutHandler}> {isAuthenticated() ? <a href="/">Logout</a> : null}</div>
+                   <div className={classes.MenuFooter} > {isAuthenticated() ? <button onClick={this.logoutHandler}>Logout</button> : null}</div>
                 </div>
             </Aux>
 
@@ -78,4 +87,4 @@ class MainMenu extends Component {
     }
 }
 
-export default withErrorHandler(MainMenu, axios);
+export default withRouter(MainMenu);

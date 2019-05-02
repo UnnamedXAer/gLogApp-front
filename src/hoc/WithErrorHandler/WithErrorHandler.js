@@ -17,6 +17,8 @@ const withErrorHandler = (WrappedComponent, axios) => {
                 return req;
             }, (error) => {
                 // Do something with request error
+                console.log('im here');
+
                 console.log(error);
                 return Promise.reject(error);
             });
@@ -42,6 +44,23 @@ const withErrorHandler = (WrappedComponent, axios) => {
         }
 
         render () {
+            let content = null
+            
+            if (this.state.error) {
+                
+                // if (!this.state.error.response) {
+                //     content // no response - server unavailable
+                // }
+                // else 
+                if (this.state.error.response && this.state.error.response.status === 401) {
+                    content = <Aux><h3><i>Unauthorized access</i></h3>
+                    <p>You are not logged. Please login or signup.</p></Aux>
+                }
+                else {
+                    content = (<Aux><h3><i>Something went wrong :/</i></h3>
+                        <p>{this.state.error.message}</p> </Aux>);
+                }
+            }
             return (
                 <Aux>
                     <Modal 
@@ -50,8 +69,7 @@ const withErrorHandler = (WrappedComponent, axios) => {
                         {this.state.error ? (
                                 <Aux>
                                     <CloseArrow closePanel={this.errorConfirmedHandler} />
-                                    <h3><i>Something went wrong :/</i></h3>
-                                    <p>{this.state.error.message}</p>
+                                    {content}
                                 </Aux>
                             ): null
                         }    

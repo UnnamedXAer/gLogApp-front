@@ -1,11 +1,11 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+// import { Redirect } from 'react-router-dom';
 
 import Validator from '../../../utils/Validator';
 import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
-import FormFieldTest from '../../../components/UI/FormField/FormField';
+import FormField from '../../../components/UI/FormField/FormField';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
 
@@ -84,6 +84,7 @@ class Form extends React.Component {
 
                     reader.readAsDataURL(file);
                 }
+                this.validator.validateField(name, file);  
                 break;
             default:
                 if (name === 'login' || name === "email") {
@@ -97,9 +98,10 @@ class Form extends React.Component {
                         [name]: ev.target.value
                     });
                 }
+                this.validator.validateField(name, ev.target.value);  
                 break;
         }
-        this.validator.validateField(name, ev.target.value);      
+            
         this.setState({[name+'Errors']: this.validator.getMessages(name)});
     }
 
@@ -202,7 +204,7 @@ class Form extends React.Component {
                 <h3>form test</h3>
                 <div>
                     <form onSubmit={this.submitFormHandler}>
-                        <FormFieldTest 
+                        <FormField 
                             label="Login"
                             type="text" 
                             name="login" 
@@ -214,7 +216,7 @@ class Form extends React.Component {
                             validator={this.validator}
                             />
 
-                        <FormFieldTest 
+                        <FormField 
                             label="Email"
                             type="email" 
                             name="email" 
@@ -226,7 +228,7 @@ class Form extends React.Component {
                             validator={this.validator}
                              />
                         
-                        <FormFieldTest 
+                        <FormField 
                             label="Password" 
                             type="password" 
                             name="password" 
@@ -238,7 +240,7 @@ class Form extends React.Component {
                             validator={this.validator}
                              />
 
-                        <FormFieldTest 
+                        <FormField 
                             label="Confirm Password" 
                             type="password" 
                             name="passwordConfirmation" 
@@ -250,7 +252,7 @@ class Form extends React.Component {
                             validator={this.validator}
                              />
 
-                        <FormFieldTest 
+                        <FormField 
                             label="Date of birth" 
                             type="date" 
                             name="dob" 
@@ -262,7 +264,7 @@ class Form extends React.Component {
                             validator={this.validator}
                              />
 
-                        <FormFieldTest 
+                        <FormField 
                             label="Select avatar" 
                             type="file" 
                             name="avatar" 
@@ -275,7 +277,7 @@ class Form extends React.Component {
                              /> 
 
                         <label>
-                            <FormFieldTest 
+                            <FormField 
                              disabled={!formOk || this.state.showSpinner} 
                             type="button" name="Go" value="Go" />
                         </label>

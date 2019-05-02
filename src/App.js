@@ -11,31 +11,35 @@ import Login from './containers/Users/Login/Login';
 import AddExercise from './containers/AddExercise/AddExercise';
 import PlanConfigurator from './containers/PlanConfigurator/PlanConfigurator';
 import AnAuthorized from './components/UnAuthorized/UnAuthorized';
+import Logout from './components/Logout/logout';
 //import { ToastContainer, toast } from 'react-toastify'; // TODO: uninstall if not implemented
 
 
 class App extends Component {
 
   render() {
-
     return (
         <BrowserRouter>
             <div className={classes.App}>
                 <Layout>
                     <Switch>
+                        <Route 
+                            path="/logout" exact
+                            component={Logout}
+                            />
                         <Route
                             path="/un-authorized" exact
                             component={AnAuthorized}
-                            />
-                        <Route
-                            path="/home" exact
-                            component={Home}
                             />
                         <PrivateRoute
                             path="/training" exact
                             component={Training}
                             />
                         <Route
+                            path="/home" exact
+                            component={Home}
+                            />
+                        <PrivateRoute
                             path="/create-exercise" exact
                             component={AddExercise}
                             />
@@ -43,7 +47,7 @@ class App extends Component {
                             path="/profile" exact
                             component={Profile}
                             />
-                        <Route
+                        <PrivateRoute
                             path="/plan-conf" exact
                             component={PlanConfigurator}
                             />
