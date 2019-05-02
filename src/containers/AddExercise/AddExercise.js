@@ -1,5 +1,6 @@
 import React from 'react';
-import SimpleReactValidator from 'simple-react-validator';
+// import SimpleReactValidator from 'simple-react-validator';
+import Validator from '../../utils/Validator';
 import classes from './AddExercise.module.css';
 import axios from '../../axios-dev';
 import Multiselect from '../Multiselect/Multiselect';
@@ -23,27 +24,52 @@ class AddExercise extends React.Component {
             ytUrl: '',
             showYTFrame: false,
             multipleSelect_inputVal: '',
-
-            redirect: false,
-            validationErrors: [],
-            displayErrors4fields: []
+            formValid: false,
+            showSpinner: false
         }
-        this.validator = new SimpleReactValidator();
+        this.imgPreviewRef = React.createRef();
+        this.validator = new Validator([
+            {
+                name: 'name',
+                rules: ['required', 'alpha_num', 'min', 'notAllowed'],
+                params: {min: 2, notAllowed: ['null', 'undefined']}
+            },
+            {
+                name: 'description',
+                rules: ['required']
+            },
+            {
+                name: 'file',
+                rules: ['image', 'fileSize'],
+                params: {fileSize: 2}
+            },
+            {
+                name: 'setUnit',
+                rules: ['required']
+            }
+        ]);
         this.multipleSelectInputChanged_timeout = null;
     }
 
     formElementChangeHandler = (ev) => {
-
         const name = ev.target.name;
-        const errorFields = [...this.state.displayErrors4fields];
-
-        if (ev.target.value !== "" && errorFields.indexOf(name) === -1) {
-            errorFields.push(name);
-        }
 
         switch (ev.target.type) {
             case 'file':
-                this.setState({[name]: ev.target.files[0], formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                const file = ev.target.files[0];
+                this.setState({[name]: file});
+                if (!file) {    
+                    this.imgPreviewRef.current.src = require("../../img/avatar-blank.png");
+                }
+                else {
+                    var reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.imgPreviewRef.current.src = event.target.result;
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+                this.validator.validateField(name, file);  
                 break;        
             default:
                 if (name === 'ytUrl') {
@@ -57,21 +83,19 @@ class AddExercise extends React.Component {
                         url = url.replace("watch?v=", "embed/");
                         // eslint-disable-next-line
                         url = url.replace('https\:\/\/youtu.be\/', 'https\:\/\/www.youtube.com\/embed\/');
-                        this.setState({[name]: url, showYTFrame: true, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                        this.setState({[name]: url, showYTFrame: true});
                     }
                     else {
-                        this.setState({[name]: url, showYTFrame: false, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                        this.setState({[name]: url, showYTFrame: false});
                     }
                 }
                 else 
-                    this.setState({[name]: ev.target.value, formValid: this.validator.allValid(), displayErrors4fields: errorFields});
+                    this.setState({[name]: ev.target.value});
+                this.validator.validateField(name, ev.target.value); 
                 break;
         }
-
-        if (!this.state.formValid) {
-            this.validator.showMessages();
-            this.forceUpdate();
-        }
+        this.validator.validateField(name, ev.target.value);      
+        this.setState({[name+'Errors']: this.validator.getMessages(name)});
     }
 
     submitFormHandler = (ev) => {
@@ -86,8 +110,7 @@ class AddExercise extends React.Component {
         formdata.append('engagedParties', JSON.stringify(_state.engagedParties));
         formdata.append('accessory4Exercise', JSON.stringify(_state.accessory4Exercise));
         formdata.append('exerciseIsAccessoryForExercises', JSON.stringify(_state.exerciseIsAccessoryForExercises));
-        formdata.append('userId', 10); // TODO use real user!
-        formdata.append('file', _state.file, _state.name+Date.now()+'.jpg');
+        formdata.append('file', _state.file, _state.name+Date.now()+'.jpg'); // keep file last...
 
         // for (var key of formdata.entries()) {
 		// 	console.log(key[0] + ', ' + key[1]);
@@ -99,28 +122,28 @@ class AddExercise extends React.Component {
                 }
             })
             .then(res => {
-                console.log(res);
+                console.log(res); // todo some action like redirect or alert
             })
             .catch(err => {
+                // console.log('/exercise/new-> ', err)
                 // handled in withErrorHandler
             });
     }
 
     checkNameBlurHandler = (ev) => {
-        if (ev.target.value !== ''){
-            axios.get('/exercise/name/'+ev.target.value)
+        const target = ev.target;
+        if (target.value !== ''){
+            axios.get('/exercise/name/'+target.value)
             .then(res => {
-                if (res.data === "") {
-                    this.setState({nameError: true});
+                if (res.status === 200) {
+                    this.validator.fields[target.name].customError = target.name + ' in use.';
                 }
                 else {
-                    this.setState({nameError: false});
+                    this.validator.fields[target.name].customError = "";
                 }
-            })
-            .catch(err => console.log('checkNameBlurHandler\n', err));
-        }
-        else {
-            this.setState({nameError: false});
+                this.setState({[target.name+'Errors']: this.validator.getMessages(target.name)});
+            });
+            // .catch(err => console.log(err));
         }
     }
 
@@ -134,14 +157,16 @@ class AddExercise extends React.Component {
                 this.setState({accessory4ExerciseOptions: res.data, exerciseIsAccessoryForExercisesOptions: res.data});
             })
             .catch(err => {
+                // console.log('/exercise/all/-> ', err)
                 // handled in withErrorHandler
             });
 
         axios.get('/body-part/all/')
             .then(res => {
-                this.setState({engagedPartiesOptions: res.data});
+                this.setState({engagedPartiesOptions: res.data.data});
             })
             .catch(err => {
+                // console.log('/body-part/all/-> ', err)
                 // handled in withErrorHandler
             });
     }
@@ -162,8 +187,7 @@ class AddExercise extends React.Component {
                             blurred={this.checkNameBlurHandler}
                             placeholder="Exercise Name" 
                             validator={this.validator}
-                            rules="required"
-                            errors4Fields={this.state.displayErrors4fields} />
+                             />
 
 
                         <FormField  
@@ -173,7 +197,8 @@ class AddExercise extends React.Component {
                             cols="40"
                             rows="4"
                             value={this.state.description}
-                            changed={this.formElementChangeHandler} />
+                            changed={this.formElementChangeHandler}
+                            validator={this.validator} />
 
                         <FormField  
                             label="Set Unit"
@@ -181,7 +206,8 @@ class AddExercise extends React.Component {
                             name="setUnit"
                             value={this.state.setUnit}
                             changed={this.formElementChangeHandler}
-                            options={[{value: 1, text: "Repetitions"}, {value: 2, text: "Seconds"}]} />
+                            options={[{value: 1, text: "Repetitions"}, {value: 2, text: "Seconds"}]} 
+                            validator={this.validator}/>
 
                         <div className={[classes.Multiselect, classes.FormElement].join(' ')}>
                             <Multiselect 
@@ -214,15 +240,17 @@ class AddExercise extends React.Component {
                             type="file" 
                             name="file"
                             value={this.state.file} 
-                            changed={this.formElementChangeHandler} />
+                            changed={this.formElementChangeHandler}
+                            imgPreviewRef={this.imgPreviewRef}
+                            validator={this.validator} />
 
                         <FormField 
                             label="Link to YT"
                             type="text" 
-                            name="ytUrl" 
-                            required 
+                            name="ytUrl"  
                             value={this.state.ytUrl} 
                             changed={this.formElementChangeHandler}
+                            // validator={this.validator}
                             placeholder="YT link" />
                             {this.state.showYTFrame ? <div className={classes.YTContainer}>
                             <iframe width="100%"  title="Exercise YT Video"
@@ -235,6 +263,7 @@ class AddExercise extends React.Component {
 
                         <label className={classes.FormElement}>
                             <FormField
+                                disabled={false } //todo disable button
                                 type="button"
                                 name="Create" />
                         </label><br />

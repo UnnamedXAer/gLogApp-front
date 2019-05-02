@@ -71,13 +71,19 @@ export default class Validator {
             image: {
                 message: 'File type can be only png, jpg or gif.',
                 test: (val) => {
-                    return val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif';
+                    return (val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif');
                 }
             },
             notAllowed: {
                 message: 'Value :value not allowed',
                 test: (val, param) => {
                     return param.indexOf(val) === -1;
+                }
+            },
+            allowed: {
+                message: 'Value :value not allowed',
+                test: (val, param) => {
+                    return param.indexOf(val) !== -1;
                 }
             }
         }
@@ -142,14 +148,18 @@ export default class Validator {
 
     validateField = (name, val) => {
         const field = this.fields[name];
+        if (!field) { // field not to be validated
+            return true;
+        }
         if (field.rules.length === 0) {
-            console.error('No rules for: ', name);
+            console.error('Validation set but rules array for ' + name + ' is empty');
             return false;
         }
+
         field.customError = "";
         field.errors = [];
 
-        if (!field.required && val === "") {
+        if (!field.required && !val) {
             return true;
         }
 
