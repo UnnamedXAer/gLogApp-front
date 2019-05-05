@@ -4,7 +4,7 @@ import axios from '../../../axios-dev';
 import classes from './Login.module.css';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
-import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import withErrorHandler from '../../../hoc/WithErrorHandler/WithErrorHandler';
 import Input from '../../../components/UI/Input/Input';
 // to read
 

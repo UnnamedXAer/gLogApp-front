@@ -4,7 +4,7 @@ import React from 'react';
 import Validator from '../../../utils/Validator';
 import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
-import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import withErrorHandler from '../../../hoc/WithErrorHandler/WithErrorHandler';
 import FormField from '../../../components/UI/FormField/FormField';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';

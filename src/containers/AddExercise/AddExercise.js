@@ -5,7 +5,7 @@ import classes from './AddExercise.module.css';
 import axios from '../../axios-dev';
 import Multiselect from '../Multiselect/Multiselect';
 import FormField from '../../components/UI/FormField/FormField';
-import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import withErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler';
 
 class AddExercise extends React.Component {
     constructor(props) {
