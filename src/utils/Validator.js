@@ -46,8 +46,8 @@ export default class Validator {
             passwordConfirmation: {  // name the rule
                 message: 'The passwords do not match.',
                 test: (val, param) => {
-                    console.log(param)
-                    return val === param; 
+                    const password = (typeof param == 'function' ? param() : param );  // function that return password
+                    return val === password;
                 }
             },
             formatDate: {

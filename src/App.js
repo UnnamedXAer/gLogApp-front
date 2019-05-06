@@ -14,6 +14,7 @@ import AnAuthorized from './components/UnAuthorized/UnAuthorized';
 import Logout from './components/Logout/logout';
 //import { ToastContainer, toast } from 'react-toastify'; // TODO: uninstall if not implemented
 
+import TestComponent from './junk/TestComponent';
 
 class App extends Component {
 
@@ -23,6 +24,10 @@ class App extends Component {
             <div className={classes.App}>
                 <Layout>
                     <Switch>
+                        <Route 
+                            path="/test-component" exact
+                            component={TestComponent}
+                            />
                         <Route 
                             path="/logout" exact
                             component={Logout}

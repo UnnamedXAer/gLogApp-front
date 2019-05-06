@@ -1,11 +1,13 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 // import SimpleReactValidator from 'simple-react-validator';
 import Validator from '../../utils/Validator';
 import classes from './AddExercise.module.css';
 import axios from '../../axios-dev';
 import Multiselect from '../Multiselect/Multiselect';
 import FormField from '../../components/UI/FormField/FormField';
-import withErrorHandler from '../../hoc/WithErrorHandler/WithErrorHandler';
+import Alert from '../../components/UI/Alert/Alert';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 class AddExercise extends React.Component {
     constructor(props) {
@@ -25,7 +27,9 @@ class AddExercise extends React.Component {
             showYTFrame: false,
             multipleSelect_inputVal: '',
             formValid: false,
-            showSpinner: false
+            showSpinner: false,
+            redirect: false,
+            showAlert: false
         }
         this.imgPreviewRef = React.createRef();
         this.validator = new Validator([
@@ -122,7 +126,13 @@ class AddExercise extends React.Component {
                 }
             })
             .then(res => {
-                console.log(res); // todo some action like redirect or alert
+                if (res.status === 204) {
+                    console.log('Created', res);
+                    this.setState({showAlert: true});
+                }
+                else {
+                    this.setState({validationErrors: res.data.errors});
+                }
             })
             .catch(err => {
                 // console.log('/exercise/new-> ', err)
@@ -151,10 +161,14 @@ class AddExercise extends React.Component {
         this.setState({[dataName]: options});
     }
 
+    alertConfirmHandler = (ev) => {
+        this.setState({redirect: true});
+    }
+
     componentDidMount () {
         axios.get('/exercise/all/')
             .then(res => {
-                this.setState({accessory4ExerciseOptions: res.data, exerciseIsAccessoryForExercisesOptions: res.data});
+                this.setState({accessory4ExerciseOptions: res.data.data, exerciseIsAccessoryForExercisesOptions: res.data.data});
             })
             .catch(err => {
                 // console.log('/exercise/all/-> ', err)
@@ -174,6 +188,8 @@ class AddExercise extends React.Component {
     render () {
         return (
             <div className={classes.AddExercise}>
+                <Alert show={this.state.showAlert} confirm={this.alertConfirmHandler} text="Exercise created." type="info"/>
+                {this.state.redirect ? <Redirect to="/home" /> : null} 
                 <h3>New Exercise:</h3>
                 <div className={classes.AddExerciseFormContainer}>
                     <form onSubmit={this.submitFormHandler} className={classes.Form}>

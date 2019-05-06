@@ -4,7 +4,7 @@ import React from 'react';
 import Validator from '../../../utils/Validator';
 import classes from './Registration.module.css';
 import axios from '../../../axios-dev';
-import withErrorHandler from '../../../hoc/WithErrorHandler/WithErrorHandler';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import FormField from '../../../components/UI/FormField/FormField';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
@@ -17,7 +17,7 @@ class Form extends React.Component {
             login: "",
             loginErrors: [],
             email: "",
-            password: "ss",
+            password: "",
             passwordConfirmation: "",
             dob: "",
             avatar: "",
@@ -39,7 +39,7 @@ class Form extends React.Component {
             },
             {
                 name: 'email',
-                rules: ['required', 'isEmail']
+                rules: ['required', 'email']
             },
             {
                 name: 'password',
@@ -49,7 +49,7 @@ class Form extends React.Component {
             {
                 name: 'passwordConfirmation',
                 rules: ['required', 'passwordConfirmation'],
-                params: {passwordConfirmation: this.getStateParamValue('password')} // todo: wrongaosswordpassed
+                params: {passwordConfirmation: this.getPassword} // todo: wrong password passed
             },
             {
                 name: 'dob',
@@ -63,7 +63,7 @@ class Form extends React.Component {
         ]);
     }
 
-    getStateParamValue = (name) => this.state[name];
+    getPassword= () => this.state.password;
 
     formElementChangeHandler = (ev) => {
         const name = ev.target.name;
@@ -120,7 +120,7 @@ class Form extends React.Component {
 
     validateValue (target) {
 
-        axios.get(`/user/check-exists?name=${target.name}&value=${target.value}`)
+        axios.get(`/auth/check-exists?name=${target.name}&value=${target.value}`)
             .then(res => {
                 //this.setExistsValue(target.name, res.data.inUse);
                 if (res.data.inUse) {
@@ -151,8 +151,6 @@ class Form extends React.Component {
 
     submitFormHandler = (ev) => {
 
-        console.log(this.validator.fields);
-
         this.setState({showSpinner: true});
         ev.preventDefault();
         console.log(this.state);
@@ -167,42 +165,58 @@ class Form extends React.Component {
         //     console.log(key[0] + ', ' + key[1])
         // }
 
-        setTimeout(() => {this.setState({showSpinner: false});}, 200);
 
-        // axios.post('/user/new', formdata, {
-        //     onUploadProgress: ProgressEvent => {
-        //         console.log('Uploaded: '+Math.round(ProgressEvent.loaded / ProgressEvent.total * 100)+'%.');
-        //     }
-        // })
-        // .then(res => {
-        //     if (res.data.successful) {
-        //         this.setState({validationErrors: res.data.errors});
-        //         window.scrollTo(0, 0);
-        //     }
-        //     else {
-        //         this.setState({redirect: true});
-        //     }
-        // })
-        // .catch(err => {
+        axios.post('/auth/register', formdata, {
+            onUploadProgress: ProgressEvent => {
+                console.log('Uploaded: '+Math.round(ProgressEvent.loaded / ProgressEvent.total * 100)+'%.');
+            }
+        })
+        .then(res => {
+            if (res.data.successful) {
+                this.setState({validationErrors: res.data.errors});
+                window.scrollTo(0, 0);
+            }
+            else {
+                this.props.history.push('/home');
+            }
+        })
+        .catch(err => {
 
-        // })
-        // .finally(() => {
-        //     this.setState({showSpinner: false});
-        // })
+        })
+        .finally(() => {
+            this.setState({showSpinner: false});
+        })
     }
 
     render () {
 
         let formOk = true;
 
+        const validationErrors = this.state.validationErrors.map((x, index) => {
+            return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
+        });
+
+        const values = Object.values(this.validator.fields);
+
+        if (this.emailExists || this.state.loginExists || values.length < 4) {
+            formOk = false;
+        }
+        else {
+            for (let index = 0; index < values.length; index++) {
+                if (values[index] === false) {
+                    formOk = false;
+                    break;
+                }
+            }
+        }
 
         return (
             <div className={classes.Registration} >
-                {/* {this.state.redirect ? <Redirect to="/" exact /> : null} */}
                 <Backdrop show={this.state.showSpinner} /> 
                 {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
-                <h3>form test</h3>
+                <h3>Registration</h3>
                 <div>
+                    {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
                     <form onSubmit={this.submitFormHandler}>
                         <FormField 
                             label="Login"

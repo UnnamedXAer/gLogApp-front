@@ -9,7 +9,8 @@ const home = (props) => {
         <div className={classes.Home}>
             Home page <br /><br />
             <Link to="/Login" >Login</Link> <br /><br />
-            <Link to="/registration">Registration</Link>
+            <Link to="/registration">Registration</Link><br /><br />
+            <Link to="/test-component">Test Component</Link>
         </div>
     );
 }

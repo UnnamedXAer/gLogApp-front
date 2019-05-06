@@ -4,7 +4,7 @@ import axios from '../../../axios-dev';
 import classes from './Login.module.css';
 import SpinnerCircle from '../../../components/UI/SpinnerCircles/SpinnerCircles';
 import Backdrop from '../../../components/UI/Backdrop/Backdrop';
-import withErrorHandler from '../../../hoc/WithErrorHandler/WithErrorHandler';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import Input from '../../../components/UI/Input/Input';
 // to read
 
@@ -43,7 +43,7 @@ class Login extends React.Component {
                     }
                     else {
                         localStorage.setItem('user_id', res.data.user.id);
-                        console.log(localStorage.getItem('user_Id'));
+                        console.log(localStorage.getItem('user_id'));
                         this.setState({redirect: true});
                     }
                 })
