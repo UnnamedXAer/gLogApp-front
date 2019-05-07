@@ -246,8 +246,8 @@ class Form extends React.Component {
 
                         <label>
                             <FormField 
-                             disabled={!formOk || this.state.showSpinner} 
-                            type="button" name="Go" value="Go" />
+                                disabled={!formOk || this.state.showSpinner} 
+                                type="button" name="Go" value="Go" />
                         </label>
                     </form>
                 </div>

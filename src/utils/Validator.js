@@ -84,7 +84,7 @@ export default class Validator {
             image: {
                 message: 'File type can be only png, jpg or gif.',
                 test: (val) => {
-                    return (val.type === 'image/png' || val.type === 'image/jpeg' || val.type === 'image/gif');
+                    return ['image/gif', 'image/jpeg', 'image/png'].indexOf(val.type) !== -1;
                 }
             },
             notAllowed: {

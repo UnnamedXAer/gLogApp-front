@@ -15,7 +15,7 @@ class AddExercise extends React.Component {
             name: "",
             description: "",
             file: "",
-            setUnit: 1,
+            setUnit: "1",
             engagedParties: [], // {id, name} of body parts
             engagedPartiesOptions: [],
             accessory4Exercise: [], // {id, name} of exercises
@@ -27,6 +27,7 @@ class AddExercise extends React.Component {
             showSpinner: false,
             redirect: false,
             showAlert: false,
+            validationErrors: []
         }
         this.imgPreviewRef = React.createRef();
         this.validator = new Validator([
@@ -53,6 +54,8 @@ class AddExercise extends React.Component {
                 rules: ['yt']
             }
         ]);
+
+        this.validator.validateField("setUnit", this.state.setUnit);
     }
 
     formElementChangeHandler = (ev) => {
@@ -61,7 +64,6 @@ class AddExercise extends React.Component {
         switch (ev.target.type) {
             case 'file':
                 const file = ev.target.files[0];
-                this.setState({[name]: file});
                 if (!file) {    
                     this.imgPreviewRef.current.src = require("../../img/avatar-blank.png");
                 }
@@ -73,7 +75,8 @@ class AddExercise extends React.Component {
 
                     reader.readAsDataURL(file);
                 }
-                this.validator.validateField(name, file);  
+                this.validator.validateField(name, file); 
+                this.setState({[name]: file});
                 break;        
             default:
                 if (name === 'ytUrl') {
@@ -98,8 +101,6 @@ class AddExercise extends React.Component {
                 this.validator.validateField(name, ev.target.value); 
                 break;
         }
-        this.validator.validateField(name, ev.target.value);      
-        this.setState({[name+'Errors']: this.validator.getMessages(name)});
     }
 
     submitFormHandler = (ev) => {
@@ -128,7 +129,7 @@ class AddExercise extends React.Component {
                 }
             })
             .then(res => {
-                if (res.status === 204) {
+                if (res.status === 201) {
                     console.log('Created', res);
                     this.setState({showSpinner: false, showAlert: true});
                 }
@@ -147,7 +148,7 @@ class AddExercise extends React.Component {
         if (target.value !== ''){
             axios.get('/exercise/check-exists/?value='+target.value)
             .then(res => {
-                if (res.status === 200) {
+                if (res.data.inUse) {
                     this.validator.addCustomError(target.name, target.name + ' in use.');
                 }
                 else {
@@ -187,12 +188,24 @@ class AddExercise extends React.Component {
     }
 
     render () {
+
+        let formOk = true;
+
+        const validationErrors = this.state.validationErrors.map((x, index) => {
+            return <li key={index}>{(x.param ? x.param+": ":"") + x.msg}</li>
+        });
+
+        // formOk = this.validator.allValid();
+
+        console.log(formOk);
+
         return (
             <div className={classes.AddExercise}>
                 <Alert show={this.state.showAlert} confirm={this.alertConfirmHandler} text="Exercise created." type="info"/>
                 {this.state.redirect ? <Redirect to="/home" /> : null} 
                 <h3>New Exercise:</h3>
                 <div className={classes.AddExerciseFormContainer}>
+                    {validationErrors.length > 0 ? <div className={classes.Error}><ul>{validationErrors}</ul></div> : null}
                     <form onSubmit={this.submitFormHandler} className={classes.Form}>
                         <FormField 
                             label="Name"
@@ -211,6 +224,7 @@ class AddExercise extends React.Component {
                             label="Description"
                             type="textarea"
                             name="description"
+                            required
                             cols="40"
                             rows="4"
                             value={this.state.description}
@@ -283,7 +297,7 @@ class AddExercise extends React.Component {
 
                         <label className={classes.FormElement}>
                             <FormField
-                                disabled={false } //todo disable button
+                                disabled={!formOk || this.state.showSpinner} 
                                 type="button"
                                 name="Create"
                                  />
