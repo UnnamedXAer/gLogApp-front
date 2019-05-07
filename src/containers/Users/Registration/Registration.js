@@ -15,7 +15,6 @@ class Form extends React.Component {
         super(props);
         this.state = {
             login: "",
-            loginErrors: [],
             email: "",
             password: "",
             passwordConfirmation: "",
@@ -23,11 +22,8 @@ class Form extends React.Component {
             avatar: "",
             redirect: false,
             validationErrors: [],
-            displayErrors4fields: [],
-            loginExists: false,
-            emailExists: false,
-            formValid: false,
-            showSpinner: false
+            showSpinner: false,
+            nonUsedKey: null
         }
 
         this.imgPreviewRef = React.createRef();
@@ -67,11 +63,10 @@ class Form extends React.Component {
 
     formElementChangeHandler = (ev) => {
         const name = ev.target.name;
-
         switch (ev.target.type) {
+
             case 'file':
                 const file = ev.target.files[0];
-                this.setState({[name]: file});
 
                 if (!file) {    
                     this.imgPreviewRef.current.src = require("../../../img/avatar-blank.png");
@@ -85,49 +80,27 @@ class Form extends React.Component {
                     reader.readAsDataURL(file);
                 }
                 this.validator.validateField(name, file);  
+                this.setState({[name]: file});
                 break;
             default:
-                if (name === 'login' || name === "email") {
-                    this.setState({
-                        [name]: ev.target.value,
-                        [name+"Exists"]: false
-                    });
-                } 
-                else {
-                    this.setState({
-                        [name]: ev.target.value
-                    });
-                }
                 this.validator.validateField(name, ev.target.value);  
+                this.setState({
+                    [name]: ev.target.value
+                });
                 break;
         }
-            
-        this.setState({[name+'Errors']: this.validator.getMessages(name)});
     }
 
-    setExistsValue (name, inUse) {
-        switch (name) {
-            case 'login':
-                this.setState({loginExists: inUse});
-                break;
-            case 'email':
-                this.setState({emailExists: inUse});
-                break;
-            default:
-                break;
-        }
-    }
 
     validateValue (target) {
 
         axios.get(`/auth/check-exists?name=${target.name}&value=${target.value}`)
             .then(res => {
-                //this.setExistsValue(target.name, res.data.inUse);
                 if (res.data.inUse) {
-                    this.validator.fields[target.name].customError = target.name + ' in use.';
+                    this.validator.addCustomError(target.name, target.name + ' in use.');
                 }
                 else {
-                    this.validator.fields[target.name].customError = "";
+                    this.validator.removeCustomError(target.name);
                 }
                 this.setState({[target.name+'Errors']: this.validator.getMessages(target.name)});
             })
@@ -139,20 +112,18 @@ class Form extends React.Component {
         if (target.value !== ''){
             this.validateValue(target);
         }
-        else {
-            
-        }
-
-    }
-
-    showErrorsBlurHandler = (ev) => {
-
     }
 
     submitFormHandler = (ev) => {
-
-        this.setState({showSpinner: true});
         ev.preventDefault();
+        this.validator.validateAll(this.state);
+        if (!this.validator.allValid()) {
+            this.setState({ nonUsedKey: Date.now() } );
+            // this.setState({[name+'Errors']: this.validator.getMessages(name)});
+            return;
+        }
+        this.setState({showSpinner: true});
+        
         console.log(this.state);
         const formdata = new FormData();
         formdata.append('login', this.state.login);
@@ -168,47 +139,35 @@ class Form extends React.Component {
 
         axios.post('/auth/register', formdata, {
             onUploadProgress: ProgressEvent => {
-                console.log('Uploaded: '+Math.round(ProgressEvent.loaded / ProgressEvent.total * 100)+'%.');
+                console.log('file uploaded: '+Math.round(ProgressEvent.loaded / ProgressEvent.total * 100)+'%.');
             }
         })
         .then(res => {
-            if (res.data.successful) {
+            if (res.status !== 201) {
                 this.setState({validationErrors: res.data.errors});
                 window.scrollTo(0, 0);
+                this.setState({showSpinner: false});
             }
             else {
                 this.props.history.push('/home');
             }
         })
         .catch(err => {
-
-        })
-        .finally(() => {
             this.setState({showSpinner: false});
         })
     }
 
     render () {
-
+        console.log(this.state.nonUsedKey);
         let formOk = true;
 
         const validationErrors = this.state.validationErrors.map((x, index) => {
-            return <p key={index}>{(x.param ? x.param+": ":"") + x.msg}</p>
+            return <li key={index}>{(x.param ? x.param+": ":"") + x.msg}</li>
         });
 
-        const values = Object.values(this.validator.fields);
+        formOk = this.validator.allValid();
 
-        if (this.emailExists || this.state.loginExists || values.length < 4) {
-            formOk = false;
-        }
-        else {
-            for (let index = 0; index < values.length; index++) {
-                if (values[index] === false) {
-                    formOk = false;
-                    break;
-                }
-            }
-        }
+        console.log(formOk);
 
         return (
             <div className={classes.Registration} >
@@ -216,7 +175,7 @@ class Form extends React.Component {
                 {this.state.showSpinner ? <div className={classes.SpinnerWrapper}><SpinnerCircle /></div> : null}
                 <h3>Registration</h3>
                 <div>
-                    {validationErrors.length > 0 ? <div className={classes.Error}>{validationErrors}</div> : null}
+                    {validationErrors.length > 0 ? <div className={classes.Error}><ul>{validationErrors}</ul></div> : null}
                     <form onSubmit={this.submitFormHandler}>
                         <FormField 
                             label="Login"
@@ -249,7 +208,6 @@ class Form extends React.Component {
                             required 
                             value={this.state.password} 
                             changed={this.formElementChangeHandler}
-                            blurred={this.showErrorsBlurHandler}
                             placeholder="Password"
                             validator={this.validator}
                              />
@@ -261,7 +219,6 @@ class Form extends React.Component {
                             required 
                             value={this.state.passwordConfirmation} 
                             changed={this.formElementChangeHandler}
-                            blurred={this.showErrorsBlurHandler}
                             placeholder="Confirm password"
                             validator={this.validator}
                              />
@@ -272,7 +229,6 @@ class Form extends React.Component {
                             name="dob" 
                             value={this.state.dob} 
                             changed={this.formElementChangeHandler} 
-                            blurred={this.showErrorsBlurHandler}
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                             placeholder="Date of birth"
                             validator={this.validator}
@@ -284,7 +240,6 @@ class Form extends React.Component {
                             name="avatar" 
                             value={this.state.avatar} 
                             changed={this.formElementChangeHandler}
-                            blurred={this.showErrorsBlurHandler}
                             imgPreviewRef={this.imgPreviewRef}
                             placeholder="Avatar - picture"
                             validator={this.validator}
