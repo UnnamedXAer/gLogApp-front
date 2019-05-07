@@ -119,7 +119,6 @@ class Form extends React.Component {
         this.validator.validateAll(this.state);
         if (!this.validator.allValid()) {
             this.setState({ nonUsedKey: Date.now() } );
-            // this.setState({[name+'Errors']: this.validator.getMessages(name)});
             return;
         }
         this.setState({showSpinner: true});
