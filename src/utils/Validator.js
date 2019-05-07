@@ -95,13 +95,14 @@ export default class Validator {
     }
 
     setField = (field) => {
+        const isRequired = (field.rules.indexOf('required') > -1)
         this.fields[field.name] = {
             rules: field.rules,   // :[]rule
-            required: (field.rules.indexOf('required') > -1),
+            required: isRequired,
             params: field.params ? field.params : {},
             errors: [], // :[]String
             edited: false,
-            passed: true,
+            passed: !isRequired,//((isRequired) ? false : true),
             customError: "" // :String
         }
     }
@@ -130,6 +131,7 @@ export default class Validator {
     }
 
     addCustomError = (fieldName, message) => {
+        this.fields[fieldName].passed = false;
         return this.fields[fieldName].customError = (message);
     }
 
@@ -147,58 +149,66 @@ export default class Validator {
     }
 
     validateField = (name, val) => {
+        let fieldValid = true;
         const field = this.fields[name];
         if (!field) { // field not to be validated
-            return true;
+            return;
         }
-        if (field.rules.length === 0) {
+        else if (field.rules.length === 0) {
             console.error('Validation set but rules array for ' + name + ' is empty');
-            return false;
+            fieldValid = false;
         }
+        else {
+            field.customError = "";
+            field.errors = [];
 
-        field.customError = "";
-        field.errors = [];
-
-        if (!field.required && !val) {
-            return true;
-        }
-
-        const fieldRules = field.rules;
-        field.errors = [];
-        field.edited = true;
-        for (let i = 0; i < fieldRules.length; i++) {
-            const ruleName = fieldRules[i];
-            let rule = this.rules[ruleName];
-            const ruleParam = field.params[ruleName];
-            let passed = rule.test(val, ruleParam);
-            if (!passed) {
-                field.passed = false;
-                let message = rule.message;
-                message = message.replace(':attribute', name);
-                message = message.replace(':value', val);
-                if (ruleParam) {
-                    message = message.replace(':param', ruleParam);
+            if (!field.required && !val) {
+                fieldValid = true;
+            }
+            else {
+                const fieldRules = field.rules;
+                field.edited = true;
+                for (let i = 0; i < fieldRules.length; i++) {
+                    const ruleName = fieldRules[i];
+                    let rule = this.rules[ruleName];
+                    const ruleParam = field.params[ruleName];
+                    let passed = rule.test(val, ruleParam);
+                    if (!passed) {
+                        let message = rule.message;
+                        message = message.replace(':attribute', name);
+                        message = message.replace(':value', val);
+                        if (ruleParam) {
+                            message = message.replace(':param', ruleParam);
+                        }
+                        field.errors.push(message);
+                        fieldValid = false;
+                        break;
+                    }
                 }
-                field.errors.push(message);
-                return false;
             }
         }
-        return true;
+        field.passed = fieldValid;
+        return fieldValid;
     }
 
     validateAll = (state) => {
-        
-        for (let i = this.fields.length -1; i >= 0; i--) {
-            this.validateField(this.fields[i].name, state[this.field.name]);
-        }
+        const keys = Object.keys(this.fields);
+        keys.forEach(key => {
+            this.validateField(key, state[key]);
+        });
     }
 
-    allValid = () => {
-        for (let i = this.fields.length -1; i >= 0; i--) {
-            if (!this.fields[i]) {
-                return false;
+    allValid = () => { 
+        // this.validateAll();
+        const fields = this.fields;     
+        const keys = Object.keys(fields)
+        let passed = true;
+        keys.forEach(key => {
+            if (!fields[key].passed) {
+                passed = false;
             }
-        }
-        return true;
+        });
+
+        return passed;
     }
 } 
