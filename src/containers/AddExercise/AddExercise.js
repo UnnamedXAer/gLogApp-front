@@ -1,6 +1,5 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-// import SimpleReactValidator from 'simple-react-validator';
 import Validator from '../../utils/Validator';
 import classes from './AddExercise.module.css';
 import axios from '../../axios-dev';
@@ -25,17 +24,15 @@ class AddExercise extends React.Component {
             exerciseIsAccessoryForExercisesOptions: [],
             ytUrl: '',
             showYTFrame: false,
-            multipleSelect_inputVal: '',
-            formValid: false,
             showSpinner: false,
             redirect: false,
-            showAlert: false
+            showAlert: false,
         }
         this.imgPreviewRef = React.createRef();
         this.validator = new Validator([
             {
                 name: 'name',
-                rules: ['required', 'alpha_num', 'min', 'notAllowed'],
+                rules: ['required', 'alpha_num_space', 'min', 'notAllowed'],
                 params: {min: 2, notAllowed: ['null', 'undefined']}
             },
             {
@@ -50,9 +47,12 @@ class AddExercise extends React.Component {
             {
                 name: 'setUnit',
                 rules: ['required']
+            },
+            {
+                name: 'ytUrl',
+                rules: ['yt']
             }
         ]);
-        this.multipleSelectInputChanged_timeout = null;
     }
 
     formElementChangeHandler = (ev) => {
@@ -103,6 +103,8 @@ class AddExercise extends React.Component {
     }
 
     submitFormHandler = (ev) => {
+
+
         ev.preventDefault();
 
         const _state = this.state;
@@ -128,32 +130,33 @@ class AddExercise extends React.Component {
             .then(res => {
                 if (res.status === 204) {
                     console.log('Created', res);
-                    this.setState({showAlert: true});
+                    this.setState({showSpinner: false, showAlert: true});
                 }
                 else {
                     this.setState({validationErrors: res.data.errors});
+                    this.setState({showSpinner: false});
                 }
             })
             .catch(err => {
-                // console.log('/exercise/new-> ', err)
-                // handled in withErrorHandler
+                this.setState({showSpinner: false});
             });
     }
 
-    checkNameBlurHandler = (ev) => {
+    nameBlurHandler = (ev) => {
         const target = ev.target;
         if (target.value !== ''){
-            axios.get('/exercise/name/'+target.value)
+            axios.get('/exercise/check-exists/?value='+target.value)
             .then(res => {
                 if (res.status === 200) {
-                    this.validator.fields[target.name].customError = target.name + ' in use.';
+                    this.validator.addCustomError(target.name, target.name + ' in use.');
                 }
                 else {
-                    this.validator.fields[target.name].customError = "";
+                    this.validator.removeCustomError(target.name);
                 }
-                this.setState({[target.name+'Errors']: this.validator.getMessages(target.name)});
+            })
+            .finally(() => {
+                this.setState({}); // trigger render method
             });
-            // .catch(err => console.log(err));
         }
     }
 
@@ -171,8 +174,7 @@ class AddExercise extends React.Component {
                 this.setState({accessory4ExerciseOptions: res.data.data, exerciseIsAccessoryForExercisesOptions: res.data.data});
             })
             .catch(err => {
-                // console.log('/exercise/all/-> ', err)
-                // handled in withErrorHandler
+
             });
 
         axios.get('/body-part/all/')
@@ -180,8 +182,7 @@ class AddExercise extends React.Component {
                 this.setState({engagedPartiesOptions: res.data.data});
             })
             .catch(err => {
-                // console.log('/body-part/all/-> ', err)
-                // handled in withErrorHandler
+                
             });
     }
 
@@ -199,8 +200,8 @@ class AddExercise extends React.Component {
                             name="name" 
                             required 
                             value={this.state.name} 
-                            changed={this.formElementChangeHandler} 
-                            blurred={this.checkNameBlurHandler}
+                            changed={this.formElementChangeHandler}
+                            blurred={this.nameBlurHandler}
                             placeholder="Exercise Name" 
                             validator={this.validator}
                              />
@@ -214,7 +215,8 @@ class AddExercise extends React.Component {
                             rows="4"
                             value={this.state.description}
                             changed={this.formElementChangeHandler}
-                            validator={this.validator} />
+                            validator={this.validator} 
+                             />
 
                         <FormField  
                             label="Set Unit"
@@ -223,7 +225,8 @@ class AddExercise extends React.Component {
                             value={this.state.setUnit}
                             changed={this.formElementChangeHandler}
                             options={[{value: 1, text: "Repetitions"}, {value: 2, text: "Seconds"}]} 
-                            validator={this.validator}/>
+                            validator={this.validator}
+                             />
 
                         <div className={[classes.Multiselect, classes.FormElement].join(' ')}>
                             <Multiselect 
@@ -231,7 +234,7 @@ class AddExercise extends React.Component {
                                 options={this.state.engagedPartiesOptions}
                                 dataName="engagedParties"
                                 sendSelectedOnSelect={this.getSelectedOptionsSelectHandler}
-                                />
+                                 />
 
                         </div>
                         <div className={[classes.Multiselect, classes.FormElement].join(' ')}>
@@ -240,7 +243,7 @@ class AddExercise extends React.Component {
                                 options={this.state.exerciseIsAccessoryForExercisesOptions}
                                 dataName="exerciseIsAccessoryForExercises"
                                 sendSelectedOnSelect={this.getSelectedOptionsSelectHandler}
-                                />
+                                 />
                         </div>
                         <div className={[classes.Multiselect, classes.FormElement].join(' ')}>
                             <Multiselect 
@@ -248,7 +251,7 @@ class AddExercise extends React.Component {
                                 options={this.state.accessory4ExerciseOptions}
                                 dataName="accessory4Exercise"
                                 sendSelectedOnSelect={this.getSelectedOptionsSelectHandler}
-                                />
+                                 />
                         </div>
 
                         <FormField 
@@ -258,7 +261,8 @@ class AddExercise extends React.Component {
                             value={this.state.file} 
                             changed={this.formElementChangeHandler}
                             imgPreviewRef={this.imgPreviewRef}
-                            validator={this.validator} />
+                            validator={this.validator}
+                             />
 
                         <FormField 
                             label="Link to YT"
@@ -266,9 +270,9 @@ class AddExercise extends React.Component {
                             name="ytUrl"  
                             value={this.state.ytUrl} 
                             changed={this.formElementChangeHandler}
-                            // validator={this.validator}
+                            validator={this.validator}
                             placeholder="YT link" />
-                            {this.state.showYTFrame ? <div className={classes.YTContainer}>
+                            {this.state.showYTFrame ? <div className={classes.YTContainer} >
                             <iframe width="100%"  title="Exercise YT Video"
                                 src={this.state.ytUrl} 
                                 frameBorder="0" 
@@ -281,7 +285,8 @@ class AddExercise extends React.Component {
                             <FormField
                                 disabled={false } //todo disable button
                                 type="button"
-                                name="Create" />
+                                name="Create"
+                                 />
                         </label><br />
                     </form>
                 </div>

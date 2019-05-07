@@ -22,8 +22,7 @@ class Form extends React.Component {
             avatar: "",
             redirect: false,
             validationErrors: [],
-            showSpinner: false,
-            nonUsedKey: null
+            showSpinner: false
         }
 
         this.imgPreviewRef = React.createRef();
@@ -102,9 +101,11 @@ class Form extends React.Component {
                 else {
                     this.validator.removeCustomError(target.name);
                 }
-                this.setState({[target.name+'Errors']: this.validator.getMessages(target.name)});
             })
-            .catch(err => console.log(err));
+            .catch(err => console.log(err))
+            .finally(() => {
+                this.setState({}); // trigger render method
+            });
     }
 
     validateValueBlurHandler = (ev) => {
@@ -118,7 +119,7 @@ class Form extends React.Component {
         ev.preventDefault();
         this.validator.validateAll(this.state);
         if (!this.validator.allValid()) {
-            this.setState({ nonUsedKey: Date.now() } );
+            this.setState({});
             return;
         }
         this.setState({showSpinner: true});
@@ -157,7 +158,6 @@ class Form extends React.Component {
     }
 
     render () {
-        console.log(this.state.nonUsedKey);
         let formOk = true;
 
         const validationErrors = this.state.validationErrors.map((x, index) => {

@@ -16,25 +16,38 @@ export default class Validator {
             email: {
                 message: 'The :attribute must be a valid email address.',
                 test: (val) => {
-                  return new RegExp(/^[A-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i).test(val);
+                    return new RegExp(/^[A-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i).test(val);
                 }
             },
             alpha_num: {
                 message: 'The :attribute may only contain letters and numbers.',
                 test: (val) => {
-                  return new RegExp(/^[A-Z0-9]*$/i).test(val);
+                    return new RegExp(/^[A-Z0-9]*$/i).test(val);
+                }
+            },
+            alpha_num_space: {
+                message: 'The :attribute may only contain letters, numbers and spaces.',
+                test: (val) => {
+                    return new RegExp(/^[A-Z0-9\s+]*$/i).test(val);
+                }
+            },
+            yt: {
+                message: '\':value\' is not a valid youtube video link.',
+                test: (val) => {
+                    return ((val.indexOf('https://www.youtube.com/') === 0 || val.indexOf('https://youtu.be/') === 0) 
+                        && (val.length > ('https://youtu.be/').length || val.length > ('https://www.youtube.com/').length));
                 }
             },
             min: {
                 message: 'The :attribute must be :param+ chars long.',
                 test: (val, param) => {
-                  return val.length >= param;
+                    return val.length >= param;
                 }
             },
             max: {
                 message: 'The :attribute must be max :param chars long.',
                 test: (val, param) => {
-                  return val.length <= param;
+                    return val.length <= param;
                 }
             },
             password: {
