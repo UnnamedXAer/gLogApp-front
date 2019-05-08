@@ -12,6 +12,7 @@ import AddExercise from './containers/AddExercise/AddExercise';
 import PlanConfigurator from './containers/PlanConfigurator/PlanConfigurator';
 import AnAuthorized from './components/UnAuthorized/UnAuthorized';
 import Logout from './components/Logout/logout';
+import TrainingHistory from './containers/TrainingHistory/TrainingHistory';
 //import { ToastContainer, toast } from 'react-toastify'; // TODO: uninstall if not implemented
 
 import TestComponent from './junk/TestComponent';
@@ -63,6 +64,10 @@ class App extends Component {
                         <Route
                             path="/login" exact
                             component={Login}
+                            />
+                        <Route
+                            path="/training-history" exact
+                            component={TrainingHistory}
                             />
                         <Route
                             path="/" exact activeElement

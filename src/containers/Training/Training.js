@@ -6,7 +6,7 @@ import Exercise from './Exercise/Exercise';
 import Aux from '../../hoc/Auxiliary';
 import Modal from '../../components/UI/Modal/Modal';
 import TrainingSummary from '../../components/Training/TrainingSummary/TrainingSummary';
-
+import StartPrompt from '../../components/Training/StartPrompt/StartPrompt';
 import axios from '../../axios-dev';
 import { convertToInputDateFormat } from '../../utils/utility';
 
@@ -20,7 +20,10 @@ class Training extends Component {
             showSummary: false,
             trainingId: null,
             comment: "",
-            redirect: false
+            showStartPrompt: false,
+            redirect: false,
+            showSpinner: true,
+            savedTrainings: null
         };
     }
 
@@ -124,8 +127,61 @@ class Training extends Component {
         // this.props.history.push('/home');
     }
 
+    savedTrainingSelectHandler = (ev, id) => {
+        const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
+        if (training.id) {
+            this.setState({showSpinner: true});
+            axios.get('/training/details/id/'+training.id)
+            .then(res => {
+                if (res.status === 200) {
+                    const data = res.data.training;
+                    this.setState({
+                        trainingId: data.id,
+                        startTime: data.startTime,
+                        endTime: data.endTime, // supposed to be empty string
+                        comment: data.comment,
+                        exercises: data.exercises,
+                        showSpinner: false
+                    });
+                }
+            })
+            .catch(err => {
+                this.setState()
+            })
+        }
+        this.setState({
+            startTime: training.startTime,
+            showSpinner: false
+        });
+    }
+
     componentDidMount () {
-        this.registerNewTraining();
+        const savedTrainings = localStorage.getItem('trainings');
+        if (savedTrainings) {
+            let ids = null;
+            try {
+                ids = JSON.parse(savedTrainings);
+                if (ids && ids.length > 0) {
+                    axios.get('/training/ids', {
+                        params: ids
+                    })
+                    .then(res => {
+                        this.setState({showStartPrompt: true, savedTrainings: res.data.ids});
+                    })
+                    .catch(err => {
+                        this.setState({showStartPrompt: true});
+                    })
+                }
+            }
+            catch (err) {
+                console.log(err);
+                this.setState({showStartPrompt: true});
+            }
+        }
+        else {
+            this.setState({showStartPrompt: true});
+            // this.registerNewTraining();
+        }
     }
 
     render () {
@@ -179,6 +235,7 @@ class Training extends Component {
         return (
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
+                {this.state.showStartPrompt ? <StartPrompt show={true} trainingSelected={this.savedTrainingSelectHandler} trainings={this.state.savedTrainings} /> : null}
                 <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
                     <TrainingSummary 
                         exercises={this.state.exercises} 

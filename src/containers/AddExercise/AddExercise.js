@@ -195,7 +195,7 @@ class AddExercise extends React.Component {
             return <li key={index}>{(x.param ? x.param+": ":"") + x.msg}</li>
         });
 
-        // formOk = this.validator.allValid();
+        formOk = this.validator.allValid();
 
         console.log(formOk);
 
