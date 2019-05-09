@@ -11,7 +11,7 @@ class Modal extends React.Component {
     }
 
     render () {
-        const {width, height, show} = this.props;
+        const {width, height, show, overflow} = this.props;
 
         let header = null;
         if (this.props.showHeader) {
@@ -30,8 +30,9 @@ class Modal extends React.Component {
                         opacity: show ? '1' : '0',
                         width: width ? (width+"%") : '70%', 
                         left: width ? (((100-width)/2)+"%") : "15%",
-                        height: height ? (height+"%") : "auto",
-                        top: height ? (((100-height)/2)+"%") : "15%"
+                        height: height ? (height+"%") : "70%",
+                        top: height ? (((100-height)/2)+"%") : "15%",
+                        overflow: overflow ? overflow : 'visible'
                     }} >
                     {header}
                     <div className={classes.Content}>

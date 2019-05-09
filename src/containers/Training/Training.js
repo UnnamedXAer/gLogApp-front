@@ -30,8 +30,7 @@ class Training extends Component {
     registerNewTraining () {
         console.log('Try to register new TRAINING.')
         axios.post('/training/new', {
-            userId: 10,
-            startTime:this.state.startTime,
+            startTime: this.state.startTime,
         })
         .then(response => {
             console.log('New TRAINING registered with id: ', response.data.trainingId);
@@ -128,60 +127,91 @@ class Training extends Component {
     }
 
     savedTrainingSelectHandler = (ev, id) => {
+        
         const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
         if (training.id) {
             this.setState({showSpinner: true});
             axios.get('/training/details/id/'+training.id)
             .then(res => {
                 if (res.status === 200) {
-                    const data = res.data.training;
+                    const data = res.data.data;
+                    const st = (data.startTime ? convertToInputDateFormat(data.startTime) : "");
+                    const et =  (data.endTime ? convertToInputDateFormat(data.endTime) : "");
                     this.setState({
                         trainingId: data.id,
-                        startTime: data.startTime,
-                        endTime: data.endTime, // supposed to be empty string
-                        comment: data.comment,
-                        exercises: data.exercises,
-                        showSpinner: false
+                        startTime: st,
+                        endTime: et, // supposed to be empty string
+                        comment: (data.comment ? data.comment : ""),
+                        // exercises: data.exercises,
+                        showSpinner: false,
+                        showStartPrompt: false
                     });
                 }
             })
             .catch(err => {
-                this.setState()
+                console.log(err)
+                // this.setState()
             })
         }
-        this.setState({
-            startTime: training.startTime,
-            showSpinner: false
-        });
+        // console.log(12321311);
+        // this.setState({
+        //     startTime: training.startTime,
+        //     showSpinner: false
+        // });
+    }
+
+    getNotCompletedTrainings() {
+        axios.get('/training/not-completed')
+        .then(res => {
+            const savedTrainings = res.data.data.concat( res.data.data.concat( res.data.data.concat( res.data.data)));
+            if (savedTrainings) {
+                // let ids = null;
+                this.setState({savedTrainings: savedTrainings, showStartPrompt: true});
+                // ids = JSON.parse(savedTrainings);
+                // ids = savedTrainings.map(training => training.id);
+                // if (ids && ids.length > 0) {
+                    
+                // }
+            }
+            else {
+                console.log('no saved trainings');
+                this.setState({showStartPrompt: true});
+                // this.registerNewTraining();
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
     componentDidMount () {
-        const savedTrainings = localStorage.getItem('trainings');
-        if (savedTrainings) {
-            let ids = null;
-            try {
-                ids = JSON.parse(savedTrainings);
-                if (ids && ids.length > 0) {
-                    axios.get('/training/ids', {
-                        params: ids
-                    })
-                    .then(res => {
-                        this.setState({showStartPrompt: true, savedTrainings: res.data.ids});
-                    })
-                    .catch(err => {
-                        this.setState({showStartPrompt: true});
-                    })
-                }
-            }
-            catch (err) {
-                console.log(err);
-                this.setState({showStartPrompt: true});
-            }
-        }
-        else {
-            this.setState({showStartPrompt: true});
-            // this.registerNewTraining();
-        }
+        this.getNotCompletedTrainings();
+        // const savedTrainings = localStorage.getItem('trainings');
+        // if (savedTrainings) {
+        //     let ids = null;
+        //     try {
+        //         ids = JSON.parse(savedTrainings);
+        //         if (ids && ids.length > 0) {
+        //             axios.get('/training/ids', {
+        //                 params: ids
+        //             })
+        //             .then(res => {
+        //                 this.setState({showStartPrompt: true, savedTrainings: res.data.ids});
+        //             })
+        //             .catch(err => {
+        //                 this.setState({showStartPrompt: true});
+        //             })
+        //         }
+        //     }
+        //     catch (err) {
+        //         console.log(err);
+        //         this.setState({showStartPrompt: true});
+        //     }
+        // }
+        // else {
+        //     this.setState({showStartPrompt: true});
+        //     // this.registerNewTraining();
+        // }
     }
 
     render () {

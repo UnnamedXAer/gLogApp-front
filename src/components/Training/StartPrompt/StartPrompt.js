@@ -8,11 +8,16 @@ const startPrompt = props => {
     let trainings = null; 
     if (props.trainings) {
         trainings = <ol>
-                {props.trainings.map(training => <li key={training.id} onClick={props.trainingSelected}>{training.startTime}</li>)}
+                {props.trainings.map((training,index) => <li key={index} onClick={(ev) => props.trainingSelected(ev, training.id)}>{training.startTime}</li>)}
             </ol>
     }
     return (
-        <Modal show={props.show} >
+        <Modal 
+            show={props.show}
+            width="86"
+            height="76"
+            overflow="auto"
+             >
             <div className={classes.StartPrompt}>
                 {trainings? <div className={classes.SavedTrainings}>
                         <h4>The following trainings are not completed select one of them or start new.</h4> 

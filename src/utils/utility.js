@@ -89,11 +89,13 @@ export function convertToInputDateFormat(date) {
         // return month +'-'+ day +'-'+ year +'T'+ hour +':'+ minutes;
         // return month +'/'+ day +'/'+ year +'T'+ hour +':'+ minutes;
     }
-    else if (date.indexOf('T') === -1) {
-        throw Error('Not implemented: date conversion for input type date.');
+    else if (date !== "" && date.indexOf('T') > -1) {
+        // console.log(date.substr(0, 16))
+        return date.substr(0, 23)//date.substr(0, 16);
     }
     else {
-        return date;
+        throw Error('Date format not recognized.');
+        // return date;
     }
 }
 
