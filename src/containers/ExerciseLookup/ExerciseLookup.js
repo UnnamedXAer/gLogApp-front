@@ -25,7 +25,7 @@ class ExerciseLookup extends React.Component {
         if (currentValue !== "") {
             axios.get('/exercise/name/'+currentValue)
                 .then(res => {
-                    this.setState({exercises: res.data});
+                    this.setState({exercises: res.data.data});
                 })
                 .catch(err => {
                     console.log('ExerciseLookup ',err);
@@ -36,21 +36,7 @@ class ExerciseLookup extends React.Component {
         }
     }
 
-    componentDidMount () { // TODO - remove
-        // this.setState({exercises: [ // fake data
-        //     {name: 'some text 1 , some text 1, some text 1,some text 1', id: 12144},
-        //     {name: 'some other text', id: 12},
-        //     {id:101, name: 'Landmire Press'},
-        //     {name: 'different text', id: 23}, {name: 'some text 1 , some text 1, some text 1,some text 1', id: 154},
-        //     {name: 'some other text', id: 32},
-        //     {name: 'different text', id: 34}, {name: 'some text 1 , some text 1, some text 1,some text 1', id: 551},
-        //     {name: 'some other text', id: 42},
-        //     {name: 'different text', id: 53}, {name: 'some text 1 , some text 1, some text 1,some text 1', id: 231},
-        //     {name: 'some other text', id: 26},
-        //     {name: 'different text', id: 73}, {name: 'some text 1 , some text 1, some text 1,some text 1', id: 1223},
-        //     {name: 'some other text', id: 82},
-        //     {name: 'different text', id: 413}
-        // ]}); 
+    componentDidMount () {
         this.inputRef.current.focus();
     }
 
@@ -62,15 +48,6 @@ class ExerciseLookup extends React.Component {
 
     showDetailsHandler = (ev, id) => {
         if (!this.state.detailedExercise || id !== this.state.detailedExercise.id) {
-
-        // /* fakedata */
-        // var exercise = {...this.state.exercises.find(x => x.id === id)}
-        // exercise.description = `Lorem ipsum tekstum longum ten times. 
-        //     Lorem ipsum tekstum longum ten times. Lorem ipsum tekstum longum ten times. `
-        // exercise.createdBy = 'Record Author';
-        // exercise.createdOn = '12/12/2018 12:22:54';
-        // this.setState({detailedExercise: exercise, showDetails: true});
-        // /* fakedata */
 
         axios.get('exercise/details/id/'+id)
             .then(res => {

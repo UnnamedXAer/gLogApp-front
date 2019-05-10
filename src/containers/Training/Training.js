@@ -30,11 +30,11 @@ class Training extends Component {
     registerNewTraining () {
         console.log('Try to register new TRAINING.')
         axios.post('/training/new', {
-            startTime: this.state.startTime,
+            startTime: this.state.startTime
         })
         .then(response => {
-            console.log('New TRAINING registered with id: ', response.data.trainingId);
-            this.setState({trainingId: response.data.trainingId});
+            console.log('New TRAINING registered with id: ', response.data.data);
+            this.setState({trainingId: response.data.data, showStartPrompt: false, savedTrainings: null});
         })
         .catch(err => {
             console.log('Failed to register new TRAINING.', err);
@@ -51,33 +51,28 @@ class Training extends Component {
         let userExercises = [...this.state.exercises]; // TODO: i'm not sure if it do the work correctly. -> it works if just new element is pushed? - no modifications on existing
         
         const newCompletedExercise = {
-            exercise: newExercise,
-            trainingExerciseId: newExercise.trainingExerciseId,
+            id: newExercise.id,
+            exerciseId: newExercise.exerciseId,
+            trainingId: this.state.trainingId,
             startTime: newExercise.startTime,
             endTime: newExercise.endTime,
-            trainingId: this.state.trainingId,
             sets: sets,
             comment: 'No comment functionality implemented yet. '+ new Date()
         }
 
-        const _newCompletedExercise = {
-            exerciseId: newCompletedExercise.exercise.id,
-            trainingExerciseId: newCompletedExercise.trainingExerciseId,
-            startTime: newCompletedExercise.startTime,
-            endTime: newCompletedExercise.endTime,
-            trainingId: newCompletedExercise.trainingId,
-            sets: newCompletedExercise.sets,
-            comment: newCompletedExercise.comment
-        }
         userExercises.push(newCompletedExercise);
         this.setState({
             exercises: userExercises,
             exerciseToUpdate: null
         });
 
-        axios.post('/training/complete-exercise', _newCompletedExercise)
-            .then(response => console.log('Exercise posted to DB. \n', response))
-            .catch(err => console.log('Fail to post exercise to DB. \n', err, newCompletedExercise));
+        axios.put('/training/exercise', newCompletedExercise)
+            .then(res => {
+                console.log('Exercise put to DB. \n', res)
+                let exercises = [...this.state.exercises];
+                this.setState({exercises})
+            })
+            .catch(err => console.log('Fail to complete exercise. \n', err, newCompletedExercise));
     }
 
     exercisesListItemClickHandler = (id) => {
@@ -107,7 +102,7 @@ class Training extends Component {
         }
 
         console.log(training);
-        axios.post('/training/complete', training) // TODO move to Exercise component
+        axios.put('/training/complete', training) // TODO move to Exercise component
             .then(response => {
                 console.log('Training completed successfully. \n', response);
                 this.setState({redirect: true});
@@ -129,7 +124,7 @@ class Training extends Component {
     savedTrainingSelectHandler = (ev, id) => {
         
         const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
-        if (training.id) {
+        if (id) {
             this.setState({showSpinner: true});
             axios.get('/training/details/id/'+training.id)
             .then(res => {
@@ -153,6 +148,9 @@ class Training extends Component {
                 // this.setState()
             })
         }
+        else {
+            this.registerNewTraining();
+        }
         // console.log(12321311);
         // this.setState({
         //     startTime: training.startTime,
@@ -165,18 +163,12 @@ class Training extends Component {
         .then(res => {
             const savedTrainings = res.data.data.concat( res.data.data.concat( res.data.data.concat( res.data.data)));
             if (savedTrainings) {
-                // let ids = null;
                 this.setState({savedTrainings: savedTrainings, showStartPrompt: true});
-                // ids = JSON.parse(savedTrainings);
-                // ids = savedTrainings.map(training => training.id);
-                // if (ids && ids.length > 0) {
-                    
-                // }
             }
             else {
                 console.log('no saved trainings');
                 this.setState({showStartPrompt: true});
-                // this.registerNewTraining();
+                this.registerNewTraining();
             }
         })
         .catch(err => {

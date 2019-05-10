@@ -25,7 +25,7 @@ const startPrompt = props => {
                         {trainings}
                     </div>: null}
                 <div className={classes.Buttons}>
-                    <button onClick={props.confirm}>Start New Training</button>
+                    <button onClick={props.trainingSelected}>Start New Training</button>
                 </div>
             </div>
         </Modal>

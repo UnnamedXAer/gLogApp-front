@@ -8,7 +8,7 @@ import ExerciseMenu from '../../../components/Training/ExerciseMenu/ExerciseMenu
 import ExerciseLookup from '../../ExerciseLookup/ExerciseLookup';
 import RoundButton from '../../../components/UI/RoundButton/RoundButton';
 import Confirm from '../../../components/UI/Confirm/Confirm';
-// import axios from '../../../axios-dev';
+import axios from '../../../axios-dev';
 // import { convertToInputDateFormat } from '../../../utils/utility';
 
 
@@ -16,6 +16,7 @@ class Exercise extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
+            id: null,
             readOnly: true,
             showLookup: false,
             currentWeight: '',
@@ -26,7 +27,8 @@ class Exercise extends React.Component {
             currentSetId: null,
             sets: this.props.userExercise? this.props.userExercise.sets : [],
             exercise: null,//{id:101, name: 'Landmire Press'},
-            // exercise: this.props.userExercise ? this.props.userExercise.exercise : null,
+            startTime: null,
+            endTime: null,
             inExerciseClear: false,
             showConfirmation: false
         }
@@ -42,6 +44,12 @@ class Exercise extends React.Component {
 
     addSetHandler = (event) => {
         
+        if(!this.state.currentWeight || !this.state.currentReps) {
+            return window.alert('Weight and reps are required. If you fe. do not remember the value use -1.');
+        }
+
+        // todo: if edited find from this.sets.
+
         let set = {
             id: this.state.currentSetId,
             weight: Math.round((this.state.currentWeight * 100) / 100),
@@ -49,34 +57,34 @@ class Exercise extends React.Component {
             comment: this.state.currentComment,
             drop: this.state.currentDrop,
             tempo: this.state.currentTempo,
-            posNo: this.state.sets.length, // TODO: implement some features or remove, correct if editing currently added enabled.
             time: new Date()//convertToInputDateFormat(new Date())
+        }
+
+        if (this.state.id) {
+            axios.post('/training/new-set', {
+                set
+            })
+            .then(res => {
+                // update set
+            })
+            .catch(err => {
+                console.log(err);
+            });
         }
 
         let sets = [...this.state.sets];
         sets.push(set);
         this.setState({sets: sets});
         this.clearAddSetSection();
-
-        // axios.post('training/exercise/addset/',{
-        //     trainingId: this.props.trainingId, 
-        //     exerciseId: this.exerciseId,
-        //     set: set
-        // })
-        //     .then(response => {
-        //         console.log('Set posted to DB.', response);
-        //         // TODO: assign id to set.
-        //     })
-        //     .catch(err => console.log('Failed to post set to DB \n', err));
     } 
 
     clearAddSetSection = () => {
         this.setState({
             //currentWeight: "", // keep last weight as log as the same exercise is in progress.
-            currentReps: '', // should I keep reps?
-            currentDrop: "",
-            currentTempo: "",
-            currentComment: ''
+            // currentReps: '', // should I keep reps?
+            // currentDrop: "",
+            // currentTempo: "",
+            // currentComment: ''
         });
     }
 
@@ -92,16 +100,24 @@ class Exercise extends React.Component {
     }
 
     changeExerciseHandler = () => {
-        this.setState({exercise: null, inExerciseClear: false, showLookup: true});
+        this.setState({exercise: null, startTime: null, id: null, endTime: null, inExerciseClear: false, showLookup: true});
     }
     
     toggleExerciseLookupHandler = (ev, exercise) => {
         const showLookup = this.state.showLookup;
         if (exercise) {
-            const _exercise = {...exercise};
-            _exercise.startTime = new Date();
-            _exercise.trainingExerciseId = null;
-            this.setState({showLookup: !showLookup, exercise: _exercise});
+            const startTime = new Date();
+            axios.post('training/exercise', {
+                exerciseId: exercise.id,
+                startTime: startTime
+            })
+            .then(res => {
+                this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: res.data.data, exercise: exercise});
+            })
+            .catch (err => {
+                console.log(err)
+                this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: null, exercise: exercise});
+            });
         }
         else {
             this.setState({showLookup: !showLookup});
@@ -118,8 +134,14 @@ class Exercise extends React.Component {
     }
 
     completeExercise = () => {
-        const exercise = {...this.state.exercise};
-        exercise.endTime = new Date();
+        console.log(this.state);
+        const exercise = {
+            id: this.state.id,
+            startTime: this.state.startTime,
+            endTime: (this.state.endTime ? this.state.endTime : new Date()), // todo allow editing start / end time
+            exerciseId: this.state.exercise.id,
+            exerciseName: this.state.exercise.name
+        };
         const sets = [...this.state.sets];
         this.props.completed(exercise, sets); // pass exercise to parent (Training).
         this.setState({exercise: null, sets: [], showConfirmation: false}); // TODO: is this ok?
@@ -140,7 +162,6 @@ class Exercise extends React.Component {
         }
     }
 
-
     render () {
         let exerciseLookup = null;
 
@@ -148,7 +169,7 @@ class Exercise extends React.Component {
 
         let exerciseTitle = null;
         if (this.state.showLookup) {
-            exerciseLookup =<ExerciseLookup closed={this.toggleExerciseLookupHandler} />
+            exerciseLookup = <ExerciseLookup closed={this.toggleExerciseLookupHandler} />
         }
         else if (!this.state.exercise) {
             exerciseHeader = <RoundButton 
