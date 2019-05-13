@@ -51,6 +51,8 @@ class Exercise extends React.Component {
         // todo: if edited find from this.sets.
 
         let set = {
+            trainingId: this.props.trainingId,
+            exerciseId: this.state.id,
             id: this.state.currentSetId,
             weight: Math.round((this.state.currentWeight * 100) / 100),
             reps: parseInt(this.state.currentReps, 10),
@@ -60,23 +62,69 @@ class Exercise extends React.Component {
             time: new Date()//convertToInputDateFormat(new Date())
         }
 
-        if (this.state.id) {
-            axios.post('/training/new-set', {
-                set
-            })
+        let sets = [...this.state.sets];
+
+        console.log('_set', { 
+            id: set.id, 
+            weight: set.weight, 
+            reps: set.reps, 
+            comment: set.comment, 
+            drop: set.drop, 
+            tempo: set.tempo, 
+            time: set.time
+        });
+        sets.push({ 
+            id: set.id, 
+            weight: set.weight, 
+            reps: set.reps, 
+            comment: set.comment, 
+            drop: set.drop, 
+            tempo: set.tempo, 
+            time: set.time
+        });
+        this.setState({sets: sets});
+        this.clearAddSetSection();
+
+        if (this.currentSetId) {
+            this.putSet(set);
+        }
+        else {
+            this.postSet(set); 
+        }
+    } 
+
+    postSet(set) {
+        axios.post('/training/set', set)
             .then(res => {
+                console.log(res)
                 // update set
             })
             .catch(err => {
                 console.log(err);
             });
-        }
+    }
 
-        let sets = [...this.state.sets];
-        sets.push(set);
-        this.setState({sets: sets});
-        this.clearAddSetSection();
-    } 
+    putSet(set) {
+        axios.put('/training/set', set)
+            .then(res => {
+                console.log(res)
+                // update set
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+
+    deleteSet(id) {
+        axios.delete('/training/set/'+id)
+            .then(res => {
+                // update set
+                console.log(res)
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
 
     clearAddSetSection = () => {
         this.setState({
@@ -84,7 +132,8 @@ class Exercise extends React.Component {
             // currentReps: '', // should I keep reps?
             // currentDrop: "",
             // currentTempo: "",
-            // currentComment: ''
+            // currentComment: '',
+            currentSetId: null
         });
     }
 
@@ -107,7 +156,8 @@ class Exercise extends React.Component {
         const showLookup = this.state.showLookup;
         if (exercise) {
             const startTime = new Date();
-            axios.post('training/exercise', {
+            axios.post('training/exercise', { // create new training exercise
+                trainingId: this.props.trainingId,
                 exerciseId: exercise.id,
                 startTime: startTime
             })
@@ -137,10 +187,10 @@ class Exercise extends React.Component {
         console.log(this.state);
         const exercise = {
             id: this.state.id,
+            trainingId: this.props.trainingId,
             startTime: this.state.startTime,
             endTime: (this.state.endTime ? this.state.endTime : new Date()), // todo allow editing start / end time
-            exerciseId: this.state.exercise.id,
-            exerciseName: this.state.exercise.name
+            exercise: this.state.exercise
         };
         const sets = [...this.state.sets];
         this.props.completed(exercise, sets); // pass exercise to parent (Training).

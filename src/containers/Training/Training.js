@@ -14,6 +14,7 @@ class Training extends Component {
     constructor (props) {
         super(props);
         this.state = {
+            exerciseToUpdate: null,
             exercises: [],
             startTime: convertToInputDateFormat(new Date()),
             endTime: "",
@@ -29,7 +30,7 @@ class Training extends Component {
 
     registerNewTraining () {
         console.log('Try to register new TRAINING.')
-        axios.post('/training/new', {
+        axios.post('/training/', {
             startTime: this.state.startTime
         })
         .then(response => {
@@ -37,49 +38,55 @@ class Training extends Component {
             this.setState({trainingId: response.data.data, showStartPrompt: false, savedTrainings: null});
         })
         .catch(err => {
-            console.log('Failed to register new TRAINING.', err);
+            console.log('Failed to register new TRAINING.', err); // todo add error handler
             this.setState({trainingId: null}); // TODO: remove
         });
-        let i = 0;
-        while (i<10100) {
-            i++;
-        }
     }
 
     completeExerciseHandler = (newExercise, sets) => {
         console.log('Training. exercise completed.', newExercise);
         let userExercises = [...this.state.exercises]; // TODO: i'm not sure if it do the work correctly. -> it works if just new element is pushed? - no modifications on existing
-        
-        const newCompletedExercise = {
+        const exercise = {
+            exercise: newExercise.exercise,
             id: newExercise.id,
-            exerciseId: newExercise.exerciseId,
-            trainingId: this.state.trainingId,
             startTime: newExercise.startTime,
             endTime: newExercise.endTime,
-            sets: sets,
-            comment: 'No comment functionality implemented yet. '+ new Date()
+            comment: newExercise.comment,
+            sets: sets
         }
-
-        userExercises.push(newCompletedExercise);
+        userExercises.push(exercise);
         this.setState({
             exercises: userExercises,
             exerciseToUpdate: null
         });
 
-        axios.put('/training/exercise', newCompletedExercise)
+        axios.put('/training/exercise', newExercise)
             .then(res => {
-                console.log('Exercise put to DB. \n', res)
-                let exercises = [...this.state.exercises];
-                this.setState({exercises})
+                if (res.status === 200) {
+                    console.log('Exercise put to DB. \n', res)
+                    let exercises = [...this.state.exercises];
+                    const exerciseIdx = exercises.findIndex(exercise => exercise.startTime === newExercise.startTime); // todo use different property
+                    exercises[exerciseIdx] = {...exercises[exerciseIdx], id: res.data.data};
+
+                    console.log('exercises', exercises);
+                    console.log('state.exercises', this.state.exercises);
+                    this.setState({exercises});
+                }
+                else {
+                    console.log('Unable to update (complete) exercise.', res);
+                }
             })
-            .catch(err => console.log('Fail to complete exercise. \n', err, newCompletedExercise));
+            .catch(err => console.log('Fail to complete exercise. \n', err, newExercise));
     }
 
     exercisesListItemClickHandler = (id) => {
-        const userExercise = this.state.exercises.find(x => x.exercise.id === id);
-        console.log('completed exercise clicked. ', userExercise);
-        const ans = window.confirm('Would You like to edit Your '+ userExercise.exercise.name + ' details?');
+        const exercise = {...this.state.exercises.find(x => x.id === id)};
+        console.log('completed exercise clicked. ', exercise);
+        const ans = window.confirm('Would You like to edit Your '+ exercise.exercise.name + ' details?');
         console.log(ans);
+        if (ans) {
+            this.setState({exerciseToUpdate: exercise});
+        }
         // TODO: ADD confirm component
     }
 
@@ -92,20 +99,24 @@ class Training extends Component {
         this.setState({endTime: convertToInputDateFormat(new Date()), showSummary: !showSummary});
     }
 
-    trainingCompletionOnClickHandler = () => {
-        console.log('in training complete:');
-        let training = { // TODO: mb i will save separately sets, exercises on completion and then only update if modified.
+    trainingCompletionHandler = () => {
+        let training = {
             id: this.state.trainingId,
-            exercises: this.state.exercises,
             startTime: this.state.startTime,
-            endTime: this.state.endTime
+            endTime: this.state.endTime,
+            comment: this.state.comment
         }
-
+        // todo check if exercises / sets are saved.
         console.log(training);
-        axios.put('/training/complete', training) // TODO move to Exercise component
-            .then(response => {
-                console.log('Training completed successfully. \n', response);
-                this.setState({redirect: true});
+        axios.put('/training/', training)
+            .then(res => {
+                if (res.status === 200) {
+                    console.log('Training completed successfully. \n', res);
+                    this.setState({redirect: true});
+                }
+                else {
+                    console.log('Unable to complete training.', res)
+                }
             })
             .catch(err => console.log('Error on training completion. \n', err));
 
@@ -121,10 +132,10 @@ class Training extends Component {
         // this.props.history.push('/home');
     }
 
-    savedTrainingSelectHandler = (ev, id) => {
+    savedTrainingsSelectHandler = (ev, id) => {
         
-        const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
         if (id) {
+            const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
             this.setState({showSpinner: true});
             axios.get('/training/details/id/'+training.id)
             .then(res => {
@@ -151,24 +162,18 @@ class Training extends Component {
         else {
             this.registerNewTraining();
         }
-        // console.log(12321311);
-        // this.setState({
-        //     startTime: training.startTime,
-        //     showSpinner: false
-        // });
     }
 
     getNotCompletedTrainings() {
         axios.get('/training/not-completed')
         .then(res => {
-            const savedTrainings = res.data.data.concat( res.data.data.concat( res.data.data.concat( res.data.data)));
-            if (savedTrainings) {
+            if (res.status === 200) {
+                const savedTrainings = res.data.data;
                 this.setState({savedTrainings: savedTrainings, showStartPrompt: true});
             }
             else {
                 console.log('no saved trainings');
                 this.setState({showStartPrompt: true});
-                this.registerNewTraining();
             }
         })
         .catch(err => {
@@ -213,6 +218,8 @@ class Training extends Component {
             trainingComplete = <div className={classes.TrainingComplete}>
                 <button onClick={this.toggleTrainingSummary}>Complete Training</button>
             </div>
+
+            console.log(this.state.exercises);
             
             exercisesList = this.state.exercises.map(x => { // TODO: probably should move to new component
                 let setsText = null;
@@ -257,13 +264,13 @@ class Training extends Component {
         return (
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
-                {this.state.showStartPrompt ? <StartPrompt show={true} trainingSelected={this.savedTrainingSelectHandler} trainings={this.state.savedTrainings} /> : null}
+                {this.state.showStartPrompt ? <StartPrompt show={true} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
                 <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
                     <TrainingSummary 
                         exercises={this.state.exercises} 
                         startTime={this.state.startTime} 
                         endTime={this.state.endTime} 
-                        summaryCompleted={this.trainingCompletionOnClickHandler}
+                        summaryCompleted={this.trainingCompletionHandler}
                         summaryCanceled={this.toggleTrainingSummary}
                         timeOnChange={this.timeOnChangeHandler}
                         />
@@ -296,7 +303,7 @@ class Training extends Component {
                 </div>
                 <Exercise
                 completed={this.completeExerciseHandler} 
-                exerciseToUpdate={this.state.exerciseIdToEdit}
+                exerciseToUpdate={this.state.exerciseToUpdate}
                 trainingId={this.state.trainingId} />
             </div>
         );
