@@ -1,0 +1,10 @@
+.Error {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    color: rgb(201, 22, 22);
+    padding: 10px;
+    font-size: 0.9em;
+    /* margin: 5px; */
+    font-style: italic;
+}

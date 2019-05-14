@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from '../../UI/Button/Button';
 import classes from './TrainingSummary.module.css';
+import Aux from '../../../hoc/Auxiliary';
+import Spinner from '../../UI/Spinner/Spinner';
 
 const trainingSummary = (props) => {
     const exercises = props.exercises.map(ex => (<li key={ex.exercise.id}>{ex.exercise.name}</li>));
@@ -34,8 +36,12 @@ const trainingSummary = (props) => {
                     {exercises}
                 </ul>
             </div>
-            <Button btnType="Success" clicked={props.summaryCompleted} >Complete</Button>
-            <Button btnType="Danger" clicked={props.summaryCanceled}>Cancel</Button>
+            {props.summaryMsg? <div className={classes.Error}>{props.summaryMsg}</div> : null}
+            {props.loading ? <Spinner /> :
+            <Aux>
+                <Button btnType="Success" clicked={props.summaryCompleted} >Complete</Button>
+                <Button btnType="Danger" clicked={props.summaryCanceled}>Cancel</Button>
+            </Aux>}
         </div>
     );
 }

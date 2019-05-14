@@ -7,6 +7,7 @@ import Aux from '../../hoc/Auxiliary';
 import Modal from '../../components/UI/Modal/Modal';
 import TrainingSummary from '../../components/Training/TrainingSummary/TrainingSummary';
 import StartPrompt from '../../components/Training/StartPrompt/StartPrompt';
+import Spinner from '../../components/UI/Spinner/Spinner';
 import axios from '../../axios-dev';
 import { convertToInputDateFormat } from '../../utils/utility';
 
@@ -19,9 +20,12 @@ class Training extends Component {
             startTime: convertToInputDateFormat(new Date()),
             endTime: "",
             showSummary: false,
+            summarySpinner: false,
+            summaryMsg: null,
             trainingId: null,
             comment: "",
-            showStartPrompt: false,
+            showStartPrompt: true,
+            startPrompSpinner: true,
             redirect: false,
             showSpinner: true,
             savedTrainings: null
@@ -39,38 +43,45 @@ class Training extends Component {
         })
         .catch(err => {
             console.log('Failed to register new TRAINING.', err); // todo add error handler
-            this.setState({trainingId: null}); // TODO: remove
         });
     }
 
     completeExerciseHandler = (newExercise, sets) => {
         console.log('Training. exercise completed.', newExercise);
-        let userExercises = [...this.state.exercises]; // TODO: i'm not sure if it do the work correctly. -> it works if just new element is pushed? - no modifications on existing
+        let exercises = [...this.state.exercises];
+
+        
         const exercise = {
-            exercise: newExercise.exercise,
             id: newExercise.id,
             startTime: newExercise.startTime,
             endTime: newExercise.endTime,
-            comment: newExercise.comment,
+            exercise: newExercise.exercise,
             sets: sets
         }
-        userExercises.push(exercise);
+        
+        const index = exercises.findIndex(x => x.id === newExercise.id);
+        if (index === -1) {
+            exercises.push(exercise);   //add new
+        }
+        else {
+            exercises[index] = exercise; // update existing
+        }
         this.setState({
-            exercises: userExercises,
+            exercises: exercises,
             exerciseToUpdate: null
         });
-
-        axios.put('/training/exercise', newExercise)
+        
+        const exercise_put = {
+            id: newExercise.id,
+            startTime: newExercise.startTime,
+            endTime: newExercise.endTime,
+            exerciseId: newExercise.exercise.id,
+            trainingId: newExercise.trainingId,
+        }
+        axios.put('/training/exercise', exercise_put)
             .then(res => {
-                if (res.status === 200) {
-                    console.log('Exercise put to DB. \n', res)
-                    let exercises = [...this.state.exercises];
-                    const exerciseIdx = exercises.findIndex(exercise => exercise.startTime === newExercise.startTime); // todo use different property
-                    exercises[exerciseIdx] = {...exercises[exerciseIdx], id: res.data.data};
-
-                    console.log('exercises', exercises);
-                    console.log('state.exercises', this.state.exercises);
-                    this.setState({exercises});
+                if (res.status === 201) {
+                    //todo toaster
                 }
                 else {
                     console.log('Unable to update (complete) exercise.', res);
@@ -80,14 +91,15 @@ class Training extends Component {
     }
 
     exercisesListItemClickHandler = (id) => {
-        const exercise = {...this.state.exercises.find(x => x.id === id)};
+        const exercise = {...this.state.exercises.find(x => x.exercise.id === id)};
+
         console.log('completed exercise clicked. ', exercise);
+        // TODO: ADD confirm component
         const ans = window.confirm('Would You like to edit Your '+ exercise.exercise.name + ' details?');
         console.log(ans);
         if (ans) {
             this.setState({exerciseToUpdate: exercise});
         }
-        // TODO: ADD confirm component
     }
 
     timeOnChangeHandler = (event) => {
@@ -96,10 +108,13 @@ class Training extends Component {
 
     toggleTrainingSummary = () => {
         const showSummary = this.state.showSummary;
-        this.setState({endTime: convertToInputDateFormat(new Date()), showSummary: !showSummary});
+        this.setState({endTime: convertToInputDateFormat(new Date()), showSummary: !showSummary, summaryMsg: null});
     }
 
     trainingCompletionHandler = () => {
+
+        this.setState({summarySpinner: true});
+
         let training = {
             id: this.state.trainingId,
             startTime: this.state.startTime,
@@ -110,26 +125,25 @@ class Training extends Component {
         console.log(training);
         axios.put('/training/', training)
             .then(res => {
-                if (res.status === 200) {
+                if (res.status === 201) {
                     console.log('Training completed successfully. \n', res);
                     this.setState({redirect: true});
                 }
                 else {
-                    console.log('Unable to complete training.', res)
+                    this.setState({
+                        summarySpinner: false, 
+                        summaryMsg: ['Unable to update (complete) training.',<br />,'Please try again.']
+                    });                    
+                    console.log('Unable to update (complete) training.', res);
                 }
             })
-            .catch(err => console.log('Error on training completion. \n', err));
-
-        // this.setState({
-        //     exercises: [],
-        //     exercise: null,
-        //     startTime: "",
-        //     endTime: "",
-        //     showSummary: false,
-        //     trainingId: null,
-        //     comment: ""
-        // });
-        // this.props.history.push('/home');
+            .catch(err => {
+                this.setState({
+                    summarySpinner: false, 
+                    summaryMsg: ['Error on training completion.',<br />,'Please try again.',<br />,err.message]
+                });                    
+                console.log('Error on training completion. \n', err);
+            });
     }
 
     savedTrainingsSelectHandler = (ev, id) => {
@@ -169,11 +183,11 @@ class Training extends Component {
         .then(res => {
             if (res.status === 200) {
                 const savedTrainings = res.data.data;
-                this.setState({savedTrainings: savedTrainings, showStartPrompt: true});
+                this.setState({savedTrainings: savedTrainings, startPrompSpinner: false});
             }
             else {
                 console.log('no saved trainings');
-                this.setState({showStartPrompt: true});
+                this.setState({startPrompSpinner: false});
             }
         })
         .catch(err => {
@@ -221,7 +235,7 @@ class Training extends Component {
 
             console.log(this.state.exercises);
             
-            exercisesList = this.state.exercises.map(x => { // TODO: probably should move to new component
+            exercisesList = this.state.exercises.map((x, index) => { // TODO: probably should move to new component
                 let setsText = null;
                 if (x.sets.length > 0) {
                 let allWeightNumberEqual = true;
@@ -255,7 +269,7 @@ class Training extends Component {
                 }
             }
 
-            return <li onClick={() => this.exercisesListItemClickHandler(x.exercise.id)} key={x.exercise.id}>{x.exercise.name + ' > '} {setsText}</li>
+            return <li onClick={() => this.exercisesListItemClickHandler(x.exercise.id)} key={index}>{x.exercise.name + ' > '} {setsText}</li>
         });
         }
         else {
@@ -264,9 +278,11 @@ class Training extends Component {
         return (
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
-                {this.state.showStartPrompt ? <StartPrompt show={true} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
+                {this.state.showStartPrompt ? <StartPrompt show={true} loading={this.state.startPrompSpinner} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
                 <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
                     <TrainingSummary 
+                        loading={this.state.summarySpinner}
+                        summaryMsg={this.state.summaryMsg}
                         exercises={this.state.exercises} 
                         startTime={this.state.startTime} 
                         endTime={this.state.endTime} 

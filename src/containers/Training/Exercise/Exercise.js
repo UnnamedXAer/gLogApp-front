@@ -34,6 +34,50 @@ class Exercise extends React.Component {
         }
     }
 
+    static getDerivedStateFromProps(props, state) {
+        console.log('derived')
+        // const isPropExercise = (props.exerciseToUpdate !== null);
+        const exerciseToUpdate = props.exerciseToUpdate;
+        if ((exerciseToUpdate !== null) && exerciseToUpdate.id !== state.id) {
+            console.log('updated state with props.')
+            return {
+                id: exerciseToUpdate.id,
+                readOnly: true,
+                showLookup: false,
+                currentWeight: '',
+                currentReps: '',
+                currentDrop: "",
+                currentTempo: "",
+                currentComment: "",
+                currentSetId: null,
+                sets: exerciseToUpdate.sets,
+                exercise: exerciseToUpdate.exercise,//{id:101, name: 'Landmire Press'},
+                startTime: exerciseToUpdate.startTime,
+                endTime: exerciseToUpdate.endTime,
+                inExerciseClear: false,
+                showConfirmation: false
+            };
+            // this.setState({
+            //     id: isPropExercise ? exerciseToUpdate.id : null,
+            //     readOnly: true,
+            //     showLookup: false,
+            //     currentWeight: '',
+            //     currentReps: '',
+            //     currentDrop: "",
+            //     currentTempo: "",
+            //     currentComment: "",
+            //     currentSetId: null,
+            //     sets: isPropExercise ? exerciseToUpdate.sets : [],
+            //     exercise: isPropExercise ? exerciseToUpdate.exercise : null,//{id:101, name: 'Landmire Press'},
+            //     startTime: isPropExercise ? exerciseToUpdate.startTime : null,
+            //     endTime: isPropExercise ? exerciseToUpdate.endTime : null,
+            //     inExerciseClear: false,
+            //     showConfirmation: false
+            // });
+        }
+        return null;
+    }
+
     formElementValueChangeHandler = (event) => {
         const element = event.target;
         const name= element.name;

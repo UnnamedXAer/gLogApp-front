@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import classes from './StartPrompt.module.css';
 import Modal from '../../UI/Modal/Modal';
+import Spinner from '../../UI/Spinner/Spinner';
+import Aux from '../../../hoc/Auxiliary';
 
 const startPrompt = props => {
 
@@ -19,14 +21,17 @@ const startPrompt = props => {
             overflow="auto"
              >
             <div className={classes.StartPrompt}>
-                {trainings? <div className={classes.SavedTrainings}>
-                        <h4>The following trainings are not completed select one of them or start new.</h4> 
-                        {trainings.length > 1 ? <p>You should go to <Link to="/training-history">Training History</Link> and fix uncompleted trainings.</p> : null}
-                        {trainings}
-                    </div>: null}
-                <div className={classes.Buttons}>
-                    <button onClick={props.trainingSelected}>Start New Training</button>
-                </div>
+                {props.loading ? <Spinner /> :
+                    <Aux>{trainings? <div className={classes.SavedTrainings}>
+                            <h4>The following trainings are not completed select one of them or start new.</h4> 
+                            {trainings.length > 1 ? <p>You should go to <Link to="/training-history">Training History</Link> and fix uncompleted trainings.</p> : null}
+                            {trainings}
+                        </div>: null}
+                        <div className={classes.Buttons}>
+                            <button onClick={props.trainingSelected}>Start New Training</button>
+                        </div>
+                    </Aux>
+                }
             </div>
         </Modal>
     );
