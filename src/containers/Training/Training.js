@@ -8,6 +8,7 @@ import Modal from '../../components/UI/Modal/Modal';
 import TrainingSummary from '../../components/Training/TrainingSummary/TrainingSummary';
 import StartPrompt from '../../components/Training/StartPrompt/StartPrompt';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import Confirm from '../../components/UI/Confirm/Confirm';
 import axios from '../../axios-dev';
 import { convertToInputDateFormat } from '../../utils/utility';
 
@@ -28,7 +29,8 @@ class Training extends Component {
             startPrompSpinner: true,
             redirect: false,
             showSpinner: true,
-            savedTrainings: null
+            savedTrainings: null,
+            confirmEditExerciseId: null
         };
     }
 
@@ -78,7 +80,26 @@ class Training extends Component {
             exerciseId: newExercise.exercise.id,
             trainingId: newExercise.trainingId,
         }
-        axios.put('/training/exercise', exercise_put)
+
+        if (this.state.trainingId) {
+            updateExercise(exercise_put);
+            
+        }
+        else {
+            this.registerNewTraining();
+        }
+
+        
+        
+    }
+
+    areSetsSaved (sets) {
+
+    }
+
+
+    updateExercise (exercise) {
+        axios.put('/training/exercise', exercise)
             .then(res => {
                 if (res.status === 201) {
                     //todo toaster
@@ -87,19 +108,16 @@ class Training extends Component {
                     console.log('Unable to update (complete) exercise.', res);
                 }
             })
-            .catch(err => console.log('Fail to complete exercise. \n', err, newExercise));
+            .catch(err => console.log('Fail to complete exercise. \n', err, exercise));
     }
 
     exercisesListItemClickHandler = (id) => {
-        const exercise = {...this.state.exercises.find(x => x.exercise.id === id)};
+        this.setState({confirmEditExerciseId: id});
+    }
 
-        console.log('completed exercise clicked. ', exercise);
-        // TODO: ADD confirm component
-        const ans = window.confirm('Would You like to edit Your '+ exercise.exercise.name + ' details?');
-        console.log(ans);
-        if (ans) {
-            this.setState({exerciseToUpdate: exercise});
-        }
+    setExerciseToEditHandler = (ev) => {
+        const exercise = this.state.exercises.find(x => x.exercise.id === this.state.confirmEditExerciseId);
+        this.setState({exerciseToUpdate: exercise});
     }
 
     timeOnChangeHandler = (event) => {
@@ -108,7 +126,11 @@ class Training extends Component {
 
     toggleTrainingSummary = () => {
         const showSummary = this.state.showSummary;
-        this.setState({endTime: convertToInputDateFormat(new Date()), showSummary: !showSummary, summaryMsg: null});
+        this.setState({
+            endTime: convertToInputDateFormat(new Date()), 
+            showSummary: !showSummary, 
+            summaryMsg: null
+        });
     }
 
     trainingCompletionHandler = () => {
@@ -195,6 +217,8 @@ class Training extends Component {
         })
     }
 
+
+
     componentDidMount () {
         this.getNotCompletedTrainings();
         // const savedTrainings = localStorage.getItem('trainings');
@@ -226,6 +250,17 @@ class Training extends Component {
     }
 
     render () {
+
+        let editExerciseConfirmation = null; 
+
+        if (this.state.confirmEditExerciseId) {
+            const name = this.state.exercises.find(x => x.exercise.id === this.state.confirmEditExerciseId).name;
+            editExerciseConfirmation = <Confirm 
+                confirm={this.setExerciseToEditHandler} 
+                reject={() => {this.setState({confirmEditExerciseId: null})}}
+                text={'Would You like to edit Your '+ name + ' details?'} />
+        }
+
         let trainingComplete = null;
         let exercisesList = null;
         if (this.state.exercises.length > 0) {
@@ -279,6 +314,7 @@ class Training extends Component {
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
                 {this.state.showStartPrompt ? <StartPrompt show={true} loading={this.state.startPrompSpinner} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
+                {editExerciseConfirmation}
                 <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
                     <TrainingSummary 
                         loading={this.state.summarySpinner}
