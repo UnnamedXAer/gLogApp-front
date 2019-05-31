@@ -1,0 +1,17 @@
+.ButtonLink {
+
+    background: none !important;
+    border: none;
+    padding: 3px !important;
+    text-decoration: underline;
+    /*optional*/
+    font-family: arial, sans-serif;
+    /*input has OS specific font-family*/
+    color: rgb(2, 88, 201);
+    cursor: pointer;
+    outline: none;
+}
+
+.ButtonLink:active, .ButtonLink:focus { 
+    color: orangered;
+}

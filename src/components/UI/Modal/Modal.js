@@ -11,7 +11,7 @@ class Modal extends React.Component {
     }
 
     render () {
-        const {width, height, show, overflow} = this.props;
+        const {width, height, show, overflow, zIndex} = this.props;
 
         let header = null;
         if (this.props.showHeader) {
@@ -26,6 +26,7 @@ class Modal extends React.Component {
                 <Backdrop show={show} clicked={this.props.modalClose} />
                 <div className={classes.Modal} 
                     style={{ // is this breaking the @media - query?
+                        zIndex: zIndex? zIndex:'500',
                         transform: show ? 'translateY(0)': 'translate(-100vw)',
                         opacity: show ? '1' : '0',
                         width: width ? (width+"%") : '70%', 

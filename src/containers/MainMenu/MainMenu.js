@@ -8,6 +8,7 @@ import CloseArrow from '../../components/UI/CloseArrow/CloseArrow';
 import axios from '../../axios-dev';
 // import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import isAuthenticated from '../../auth/auth';
+import ButtonLink from '../../components/UI/ButtonLink/ButtonLink';
 
 
 class MainMenu extends Component {
@@ -25,7 +26,7 @@ class MainMenu extends Component {
         },
         {
             name: 'History',
-            path: 'history',
+            path: 'training-history',
             exact: true
         },
         {
@@ -79,7 +80,7 @@ class MainMenu extends Component {
                         path={x.path}
                         exact={x.exact} />))}
                     </div>
-                   <div className={classes.MenuFooter} > {isAuthenticated() ? <button onClick={this.logoutHandler}>Logout</button> : null}</div>
+                   <div className={classes.MenuFooter} > {isAuthenticated() ? <ButtonLink clicked={this.logoutHandler}>Logout</ButtonLink> : null}</div>
                 </div>
             </Aux>
 

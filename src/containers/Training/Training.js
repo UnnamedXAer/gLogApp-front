@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import classes from './Training.module.css';
 import Exercise from './Exercise/Exercise';
-//import { UserExerciseModel } from '../../Model/ExerciseModel/ExerciseModel';
 import Aux from '../../hoc/Auxiliary';
 import Modal from '../../components/UI/Modal/Modal';
 import TrainingSummary from '../../components/Training/TrainingSummary/TrainingSummary';
 import StartPrompt from '../../components/Training/StartPrompt/StartPrompt';
-import Spinner from '../../components/UI/Spinner/Spinner';
+// import Spinner from '../../components/UI/Spinner/Spinner';
 import Confirm from '../../components/UI/Confirm/Confirm';
 import axios from '../../axios-dev';
 import { convertToInputDateFormat } from '../../utils/utility';
@@ -82,15 +81,12 @@ class Training extends Component {
         }
 
         if (this.state.trainingId) {
-            updateExercise(exercise_put);
-            
+            this.updateExercise(exercise_put);
+
         }
         else {
             this.registerNewTraining();
         }
-
-        
-        
     }
 
     areSetsSaved (sets) {
@@ -101,7 +97,7 @@ class Training extends Component {
     updateExercise (exercise) {
         axios.put('/training/exercise', exercise)
             .then(res => {
-                if (res.status === 201) {
+                if (res.status === 200) {
                     //todo toaster
                 }
                 else {
@@ -154,7 +150,7 @@ class Training extends Component {
                 else {
                     this.setState({
                         summarySpinner: false, 
-                        summaryMsg: ['Unable to update (complete) training.',<br />,'Please try again.']
+                        summaryMsg: ['Unable to update (complete) training.',<br />,'Please try again.',<br />,<i>'Response status code: '{res.status}</i>]
                     });                    
                     console.log('Unable to update (complete) training.', res);
                 }
@@ -162,7 +158,7 @@ class Training extends Component {
             .catch(err => {
                 this.setState({
                     summarySpinner: false, 
-                    summaryMsg: ['Error on training completion.',<br />,'Please try again.',<br />,err.message]
+                    summaryMsg: ['Error on training completion.',<br />,'Please try again.',<br />,<i>{err.message}</i>]
                 });                    
                 console.log('Error on training completion. \n', err);
             });
@@ -213,7 +209,11 @@ class Training extends Component {
             }
         })
         .catch(err => {
+            if (err.response && err.response.status === 401) {
+                return this.props.history.push('/login');
+            }
             console.log(err);
+            this.setState({startPrompSpinner: false});
         })
     }
 
@@ -362,4 +362,4 @@ class Training extends Component {
     }
 }
 
-export default Training;
+export default (Training);

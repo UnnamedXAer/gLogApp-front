@@ -8,17 +8,31 @@
     padding: 10px;
     margin: 10px;
     font-weight: bold;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 10px;
+    text-align: center;
 }
 
 .Button:first-of-type {
     margin-left: 0;
-    padding-left: 0;
 }
 
 .Success {
     color: #5C9210;
+    border: 1px solid rgb(92, 146, 16,0.7);
+}
+
+.Success:active {
+    background-color: #5C9210;
+    color: white;
 }
 
 .Danger {
     color: #944317;
+    border: 1px solid rgb(148, 67, 23,0.7);
+}
+
+.Danger:active {
+    background-color: #944317;
+    color: white;
 }
