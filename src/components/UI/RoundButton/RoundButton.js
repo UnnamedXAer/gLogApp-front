@@ -3,48 +3,55 @@ import React from 'react';
 import classes from './RoundButton.module.css';
 
 const roundButton = (props) => {
-    let buttonClasses = [classes.RoundButton];
 
-    switch (props.sign) {
-        case 'minus':
-            buttonClasses.push(classes.BeforeMinus);
-            break;
-        case 'ok':
-            buttonClasses.push(classes.BeforeOK);
-            break;
-        case 'tick':
-            buttonClasses.push(classes.BeforeTick);
-            break;
-        case 'question':
-            buttonClasses.push(classes.BeforeQuestion);
-            break;
-        case 'menuV':
-            buttonClasses.push(classes.BeforeMenuV);
-            break;
-        case 'menuH':
-            buttonClasses.push(classes.BeforeMenuH);
-            break;
-        case 'menu':
-            buttonClasses.push(classes.BeforeMenu);
-            break;
-        default: // "plus"
-            buttonClasses.push(classes.BeforePlus);
-            break;
+    const types = {
+        plus: {
+            sign: '+',
+            fontSize: "0.9em"
+        },
+        minus: {
+            sign: '-',
+            fontSize: "0.9em"
+        },
+        ok: {
+            sign: 'OK',
+            fontSize: "0.6em"
+        },
+        tick: {
+            sign: '✔',
+            fontSize: "0.8em"
+        },
+        question: {
+            sign: '?',
+            fontSize: "0.7em"
+        },
+        menuH: {
+            sign: '…',
+            fontSize: "0.8em"
+        },
+        menuV: {
+            sign: '⋮',
+            fontSize: "0.7em"
+        },
+        menu: {
+            sign: '≡',
+            fontSize: "0.8em"
+        },
     }
 
-    const size = props.size ? (props.size+"px") : "25px"; 
+    const size = props.size ? (props.size) : 25; 
     return (
-        <div className={buttonClasses.join(' ')}
+        <button className={classes.RoundButton}
             style={{
-                width: size,
-                height: size,
-                fontSize: size,
+                width: size+"px",
+                height: size+"px",
+                fontSize: types[props.sign || 'plus'].fontSize,
                 backgroundColor: props.bgColor ? props.bgColor : 'black', //'rgb(44,108,128)',
-                //color: props.fgColor ? props.fgColor : 'white', // doesn't work with ::before
+                color: props.fgColor ? props.fgColor : 'white', // doesn't work with ::before
                 float: props.float ? props.float : 'left',
             }}
             onClick={props.clicked}
-        ></div>
+        >{types[props.sign || 'plus'].sign}</button>
     );
 }
 export default roundButton;

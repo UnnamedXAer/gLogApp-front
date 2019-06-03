@@ -1,15 +1,23 @@
 .RoundButton {
+    text-align: center;
+    text-decoration: none;
     display: inline-block;
     box-sizing: border-box;
+    border: none;
+    outline: none;
     border-radius: 50%;
     width: 25px;
+    padding: 2px;
     height: 25px;
     font-size: 25px;
-    /* background-color: rgb(44,108,128); */
     background-color: black;
+    color: white;
+    /* font-family:courier; */
+    font-weight:bold;
+    /* justify-content:center; */
 }
 
-.BeforePlus::before {
+/* .BeforePlus::before {
     content: "+";
     height:100%;
     width:100%;
@@ -82,7 +90,6 @@
     font-size: 0.6em;
     display:flex;
     text-align: center;
-    /* flex-direction:row; */
     align-items:center;
     justify-content:center;
     font-weight:bold;
@@ -116,4 +123,4 @@
     font-weight:bold;
     font-family:courier;
     color:white;
-}
+} */
