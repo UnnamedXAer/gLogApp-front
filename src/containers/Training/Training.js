@@ -89,20 +89,22 @@ class Training extends Component {
         }
     }
 
-    areSetsSaved (sets) {
+    removeExerciseHandler = (id) => {
+        console.log(this.state.exercises);
+        let newExercises = this.state.exercises.filter(x => x.id !== id);
+        console.log(newExercises);
+        this.setState({exercises: newExercises, exerciseToUpdate: null, confirmEditExerciseId: null});
+    }
 
+    areSetsSaved (sets) {
+        // todo mb some checking here and use in complete exercise handler
     }
 
 
     updateExercise (exercise) {
         axios.put('/training/exercise', exercise)
             .then(res => {
-                if (res.status === 200) {
-                    //todo toaster
-                }
-                else {
-                    console.log('Unable to update (complete) exercise.', res);
-                }
+                console.log('Exercise updated. ', exercise);
             })
             .catch(err => console.log('Fail to complete exercise. \n', err, exercise));
     }
@@ -143,7 +145,7 @@ class Training extends Component {
         console.log(training);
         axios.put('/training/', training)
             .then(res => {
-                if (res.status === 201) {
+                if (res.status === 200) {
                     console.log('Training completed successfully. \n', res);
                     this.setState({redirect: true});
                 }
@@ -184,6 +186,15 @@ class Training extends Component {
                         showSpinner: false,
                         showStartPrompt: false
                     });
+                    
+                    axios.get('/training/'+training.id+'/exercises/')
+                    .then(res => {
+                        if (res.status === 200) {
+                            this.setState({
+                                exercises: res.data.data
+                            });
+                        }
+                    })
                 }
             })
             .catch(err => {
@@ -354,6 +365,7 @@ class Training extends Component {
                     </ul>
                 </div>
                 <Exercise
+                removeExercise={this.removeExerciseHandler}
                 completed={this.completeExerciseHandler} 
                 exerciseToUpdate={this.state.exerciseToUpdate}
                 trainingId={this.state.trainingId} />

@@ -9,6 +9,7 @@ import ExerciseLookup from '../../ExerciseLookup/ExerciseLookup';
 import RoundButton from '../../../components/UI/RoundButton/RoundButton';
 import Confirm from '../../../components/UI/Confirm/Confirm';
 import axios from '../../../axios-dev';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 // import { convertToInputDateFormat } from '../../../utils/utility';
 
 
@@ -54,26 +55,9 @@ class Exercise extends React.Component {
                 exercise: exerciseToUpdate.exercise,//{id:101, name: 'Landmire Press'},
                 startTime: exerciseToUpdate.startTime,
                 endTime: exerciseToUpdate.endTime,
-                inExerciseClear: false,
-                showConfirmation: false
+                // inExerciseClear: false,
+                // showConfirmation: false
             };
-            // this.setState({
-            //     id: isPropExercise ? exerciseToUpdate.id : null,
-            //     readOnly: true,
-            //     showLookup: false,
-            //     currentWeight: '',
-            //     currentReps: '',
-            //     currentDrop: "",
-            //     currentTempo: "",
-            //     currentComment: "",
-            //     currentSetId: null,
-            //     sets: isPropExercise ? exerciseToUpdate.sets : [],
-            //     exercise: isPropExercise ? exerciseToUpdate.exercise : null,//{id:101, name: 'Landmire Press'},
-            //     startTime: isPropExercise ? exerciseToUpdate.startTime : null,
-            //     endTime: isPropExercise ? exerciseToUpdate.endTime : null,
-            //     inExerciseClear: false,
-            //     showConfirmation: false
-            // });
         }
         return null;
     }
@@ -187,31 +171,57 @@ class Exercise extends React.Component {
     }
 
     clearExerciseAndSetsHandler = () => {
-        this.setState({exercise: null, sets: []});
-        this.clearAddSetSection();
-        this.toggleExerciseMenu();
+        const id = this.state.id;
+        axios.delete('/training/exercise/'+id)
+            .then(res => {
+                this.clearAddSetSection();
+                this.toggleExerciseMenu();
+                this.props.removeExercise(id);
+                this.setState({exercise: null, sets: [], id: null, startTime: null, endTime: null});
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
     changeExerciseHandler = () => {
-        this.setState({exercise: null, startTime: null, id: null, endTime: null, inExerciseClear: false, showLookup: true});
+        this.toggleExerciseMenu();
+        this.toggleExerciseLookupHandler(null, null);
     }
     
     toggleExerciseLookupHandler = (ev, exercise) => {
         const showLookup = this.state.showLookup;
         if (exercise) {
-            const startTime = new Date();
-            axios.post('training/exercise', { // create new training exercise
-                trainingId: this.props.trainingId,
-                exerciseId: exercise.id,
-                startTime: startTime
-            })
-            .then(res => {
-                this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: res.data.data, exercise: exercise});
-            })
-            .catch (err => {
-                console.log(err)
-                this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: null, exercise: exercise});
-            });
+            if ( this.state.id) {
+                // replace current exercise
+                axios.put('training/exercise', { 
+                    trainingId: this.props.trainingId,
+                    exerciseId: exercise.id
+                })
+                .then(res => {
+                    this.setState({showLookup: !showLookup, id: res.data.data, exercise: exercise});
+                })
+                .catch (err => {
+                    console.log(err)
+                    this.setState({showLookup: !showLookup});
+                });
+            }
+            else {
+                // create new training exercise
+                const startTime = new Date();
+                axios.post('training/exercise', { 
+                    trainingId: this.props.trainingId,
+                    exerciseId: exercise.id,
+                    startTime: startTime
+                })
+                .then(res => {
+                    this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: res.data.data, exercise: exercise});
+                })
+                .catch (err => {
+                    console.log(err)
+                    this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: null, exercise: exercise});
+                });
+            }
         }
         else {
             this.setState({showLookup: !showLookup});
@@ -238,7 +248,7 @@ class Exercise extends React.Component {
         };
         const sets = [...this.state.sets];
         this.props.completed(exercise, sets); // pass exercise to parent (Training).
-        this.setState({exercise: null, sets: [], showConfirmation: false}); // TODO: is this ok?
+        this.setState({exercise: null, id: null,startTime: null, endTime: null, currentSetId: null, sets: [], showConfirmation: false}); // TODO: is this ok?
     }
 
     toggleExerciseConfirmation = () => {
@@ -319,4 +329,4 @@ class Exercise extends React.Component {
     }
 }
 
-export default Exercise;
+export default withErrorHandler(Exercise, axios);
