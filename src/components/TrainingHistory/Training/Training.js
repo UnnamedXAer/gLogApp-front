@@ -1,7 +1,7 @@
 import React from 'react';
 import classes from './Training.module.css';
-import ButtonLink from '../../UI/ButtonLink/ButtonLink';
 import Exercise from '../Exercise/Exercise';
+import RoundButton from '../../UI/RoundButton/RoundButton';
 
 const training = props => {
 
@@ -19,9 +19,17 @@ const training = props => {
 
     return (
         <div className={classes.Training} >
-            <p key={1}>{startTime.getDate()} {startTime.toLocaleString('en-us', { month: 'long' })} {startTime.getFullYear()} 
-                <ButtonLink clicked={props.expand}>{training.expanded ? "-" : "+"}</ButtonLink>
-            </p>
+            <div className={classes.Header} onClick={props.expand}>
+                <RoundButton 
+                    clicked={props.expand} 
+                    size='30'
+                    sign={training.expanded ? "minus" : "plus"}
+                    float="right"
+                    bgColor="white"
+                    fgColor="black"
+                     />
+                <p>{startTime.getDate()} {startTime.toLocaleString('en-us', { month: 'long' })} {startTime.getFullYear()} </p>
+            </div>
             {details}
         </div>
     );

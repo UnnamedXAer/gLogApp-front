@@ -6,3 +6,7 @@
     box-shadow: 0 2px 4px #ccc;
     border: 1px solid #eee;
 }
+
+.Header {
+    border-bottom: 1px solid #eee;
+}

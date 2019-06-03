@@ -17,32 +17,38 @@ class MainMenu extends Component {
         {
             name: 'Home',
             path: 'home',
-            exact: true
+            exact: true,
+            requireAuth: false
         },
         {
             name: 'Training',
             path: 'training',
-            exact: true
+            exact: true,
+            requireAuth: true
         },
         {
             name: 'History',
             path: 'training-history',
-            exact: true
+            exact: true,
+            requireAuth: true
         },
         {
             name: 'Plan Configurator',
             path: 'plan-conf',
-            exact: true
+            exact: true,
+            requireAuth: true
         },
         {
             name: 'Profile',
             path: 'profile',
-            exact: true
+            exact: true,
+            requireAuth: true
         },
         {
             name: 'Add Exercise',
             path: 'create-exercise',
-            exact: true
+            exact: true,
+            requireAuth: true
         }
     ];
 
@@ -50,8 +56,6 @@ class MainMenu extends Component {
         localStorage.removeItem('user_id');
         axios.get('/auth/logout')
         .then(response => {
-            console.log(this.props.history);
-            console.log(this.props);
             this.props.backdropClicked();            
             this.props.history.push('/home');
         })
@@ -67,20 +71,23 @@ class MainMenu extends Component {
         if (this.props.showMenu) {
             attachedClasses = [classes.MainMenu, classes.Open];
         }
+        const isAuth = isAuthenticated();
         return (
             <Aux>
                 <Backdrop show={this.props.showMenu} clicked={this.props.backdropClicked} />
                 <div className={attachedClasses.join(' ')}>
                 <CloseArrow closePanel={this.props.backdropClicked} />
                     <div className={classes.MainMenuContainer}>
-                    {this.routes.map((x, index) => (<MainMenuElement 
-                        key={index}
-                        click={this.props.backdropClicked} 
-                        name={x.name} 
-                        path={x.path}
-                        exact={x.exact} />))}
+                    {this.routes.map((x, index) => (( x.requireAuth && isAuth ) || (!x.requireAuth)
+                        ? <MainMenuElement 
+                            key={index}
+                            click={this.props.backdropClicked} 
+                            name={x.name} 
+                            path={x.path}
+                            exact={x.exact} />
+                        : null))}
                     </div>
-                   <div className={classes.MenuFooter} > {isAuthenticated() ? <ButtonLink clicked={this.logoutHandler}>Logout</ButtonLink> : null}</div>
+                   <div className={classes.MenuFooter} > {isAuth ? <ButtonLink clicked={this.logoutHandler}>Logout</ButtonLink> : null}</div>
                 </div>
             </Aux>
 

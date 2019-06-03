@@ -1,8 +1,29 @@
 .Exercise {
     width: 100%;
-    margin: 5px;
+    /* margin: 5px; */
     padding: 5px;
     box-sizing: border-box;
+    border: 1px solid #ccc;
+}
+
+.Info {
+    box-sizing: border-box;
+    padding: 5px;
+    height: 100%;
+    width: calc(100% - 1.5em);
+    display: inline-block;
+}
+
+.ExpandSign {
+    box-sizing: border-box;
+    padding: 5px 10px 5px 0px;
+    height: 100%;
+    width: 1.5em;
+    display: inline-block;
+}
+
+.Header {
+    border-bottom: 1px solid #eee;
 }
 
 .Sets {

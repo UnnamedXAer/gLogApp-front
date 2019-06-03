@@ -6,9 +6,9 @@ const exerciseMenu = (props) => {
     return (
         <div className={classes.ExerciseMenu}>
             <h2>What to do?</h2>
-            <button onClick={props.clearExercise} >Clear Exercise</button>
-            <button onClick={props.clearExerciseAndSets} >Clear Exercise and Sets</button>
-            <button onClick={props.doNothing} >Do Nothing</button>
+            <button onClick={props.clearExercise} >Change Exercise</button>
+            <button onClick={props.clearExerciseAndSets} >Remove Exercise and Sets</button>
+            <button onClick={props.doNothing} >Cancel</button>
         </div>
     );
 }
