@@ -7,7 +7,7 @@ import Spinner from '../../UI/Spinner/Spinner';
 const trainingSummary = (props) => {
     const exercises = props.exercises.map(ex => (<li key={ex.exercise.id}>{ex.exercise.name}</li>));
     return (
-        <div>
+        <div className={classes.TrainingSummary}>
             <h3>Training Summary</h3>
             <div className={classes.TrainingTime}>
                 <div>
@@ -42,6 +42,10 @@ const trainingSummary = (props) => {
                 <Button btnType="Success" clicked={props.summaryCompleted} >Complete</Button>
                 <Button btnType="Danger" clicked={props.summaryCanceled}>Cancel</Button>
             </Aux>}
+            <div className={classes.TrainingComment}>
+                <label htmlFor="comment">Training comment:</label>
+                <textarea onChange={props.commentChanged} name="comment" value={props.comment} cols="35" rows="10"></textarea>
+            </div>
         </div>
     );
 }

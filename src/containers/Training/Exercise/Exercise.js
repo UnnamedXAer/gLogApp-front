@@ -218,7 +218,6 @@ class Exercise extends React.Component {
                     this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: res.data.data, exercise: exercise});
                 })
                 .catch (err => {
-                    console.log(err)
                     this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: null, exercise: exercise});
                 });
             }
@@ -284,14 +283,23 @@ class Exercise extends React.Component {
         else {
             exerciseTitle = <Aux>
                     <h3 style={{display: "inline"}}>{this.state.exercise.name}</h3>
-                    <RoundButton size="25" sign="menuV" bgColor="white" float="unset" clicked={this.toggleExerciseMenu} />
+                    <RoundButton 
+                        size="25" 
+                        sign="menuV" 
+                        bgColor="white" 
+                        fgColor="black"
+                        float="unset" 
+                        clicked={this.toggleExerciseMenu} />
                 </Aux>;
         }
 
         return (
             <div className={classes.Exercise}>
                 {exerciseLookup}
-                <Modal show={this.state.showConfirmation} modalClose={this.toggleExerciseConfirmation}>
+                <Modal 
+                show={this.state.showConfirmation} 
+                modalClose={this.toggleExerciseConfirmation}
+                height="30" >
                     <Confirm 
                         text={"There is no sets, is that Ok?"} 
                         confirm={this.completeExercise} 
@@ -310,8 +318,9 @@ class Exercise extends React.Component {
                 </div>
                     {this.state.exercise ?
                         <Aux>
-                            <ExerciseSets sets={this.state.sets} />
+                            <ExerciseSets sets={this.state.sets} units={this.state.exercise.setsUnit} />
                             <AddSet 
+                                units={this.state.exercise.setsUnit}
                                 inReadOnly={this.state.readOnly}
                                 weightVal={this.state.currentWeight}
                                 repsVal={this.state.currentReps}

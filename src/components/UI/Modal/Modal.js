@@ -36,7 +36,7 @@ class Modal extends React.Component {
                         overflow: overflow ? overflow : 'visible'
                     }} >
                     {header}
-                    <div className={classes.Content}>
+                    <div className={classes.Content} style={{height: (this.props.showHeader ? "calc(100% - 2.4em)" : "100%")}}>
                         {this.props.children}
                     </div>
                 </div>

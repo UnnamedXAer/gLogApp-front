@@ -131,7 +131,28 @@ export function isDob(date) {
 }
 /**
  * Remove leading and trailing spaces.
+ * 
+ * @param {String} txt
+ * @returns {String}
  */
-export function trim(value) {
-    return value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+export function trim(txt) {
+    return txt.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+}
+/**
+ * Function format given date to local format.
+ *
+ * @param {Date | String} date : Date as object string.
+ * @returns {String} : String with formatted date.
+ */
+export function formatDateToDisplay(date) {
+    // let txt = date.getDate() + date.toLocaleString('en-us', { month: 'long' }) + date.getFullYear()
+    const _date = date instanceof Date ? date : new Date(date);
+    return _date.toLocaleString(['en-US', 'pl-PL'], {
+        month: 'long',
+        day: '2-digit',
+        year: "numeric",
+        hour: '2-digit',
+        minute: '2-digit',
+        weekday: 'long'
+    });
 }

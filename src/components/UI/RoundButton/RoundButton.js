@@ -31,7 +31,7 @@ const roundButton = (props) => {
         },
         menuV: {
             sign: '⋮',
-            fontSize: "0.7em"
+            fontSize: "1em"
         },
         menu: {
             sign: '≡',

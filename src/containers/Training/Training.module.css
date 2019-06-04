@@ -3,7 +3,6 @@
     min-height: 300px;
     box-sizing: border-box;
     margin: 2px;
-    /* border: 1px solid black; */
 }
 
 .Training input {
@@ -13,20 +12,21 @@
 .TrainingInfo {
     margin: 0 auto;
     box-sizing: border-box;
-    width: 96%;
-    /* height: 60px; */
+    width: 100%;
+    min-height: 90px;
     border-bottom: 1px solid black;
 }
 
 .TrainingTime {
-    height: 100%;
-    display: inline-block;
+    margin-top: 10px;
+    box-sizing: border-box;
+    float: left;
     width: 70%;
 }
 
 .TrainingComplete {
-    height: 100%;
-    display: inline-block;
+    box-sizing: border-box;
+    float: right;
     width: 30%;
 }
 
@@ -34,4 +34,10 @@
     color: grey;
     font-style: italic;
     text-align: center;
+}
+
+.CompletedExercise {
+    margin-top: 5px;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
 }

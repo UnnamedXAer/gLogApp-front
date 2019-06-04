@@ -5,13 +5,14 @@ import Modal from '../../UI/Modal/Modal';
 import Spinner from '../../UI/Spinner/Spinner';
 import Aux from '../../../hoc/Auxiliary';
 import Button from '../../UI/Button/Button';
+import { formatDateToDisplay } from '../../../utils/utility';
 
 const startPrompt = props => {
 
     let trainings = null; 
     if (props.trainings) {
         trainings = <ol>
-                {props.trainings.map((training,index) => <li className={classes.ListItem} key={index} onClick={(ev) => props.trainingSelected(ev, training.id)}>{training.startTime}</li>)}
+                {props.trainings.map((training,index) => <li className={classes.ListItem} key={index} onClick={(ev) => props.trainingSelected(ev, training.id)}>{formatDateToDisplay(training.startTime)}</li>)}
             </ol>
     }
     return (

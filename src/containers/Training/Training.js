@@ -10,6 +10,7 @@ import StartPrompt from '../../components/Training/StartPrompt/StartPrompt';
 import Confirm from '../../components/UI/Confirm/Confirm';
 import axios from '../../axios-dev';
 import { convertToInputDateFormat } from '../../utils/utility';
+import Button from '../../components/UI/Button/Button';
 
 class Training extends Component {
     constructor (props) {
@@ -115,10 +116,14 @@ class Training extends Component {
 
     setExerciseToEditHandler = (ev) => {
         const exercise = this.state.exercises.find(x => x.exercise.id === this.state.confirmEditExerciseId);
-        this.setState({exerciseToUpdate: exercise});
+        this.setState({exerciseToUpdate: exercise, confirmEditExerciseId: null});
     }
 
-    timeOnChangeHandler = (event) => {
+    rejectExerciseToEditHandler = (ev) => {
+        this.setState({confirmEditExerciseId: null})
+    }
+
+    formElementOnChangeHandler = (event) => {
         this.setState({[event.target.name]: event.target.value});
     }
 
@@ -265,18 +270,18 @@ class Training extends Component {
         let editExerciseConfirmation = null; 
 
         if (this.state.confirmEditExerciseId) {
-            const name = this.state.exercises.find(x => x.exercise.id === this.state.confirmEditExerciseId).name;
+            const name = this.state.exercises.find(x => x.exercise.id === this.state.confirmEditExerciseId).exercise.name;
             editExerciseConfirmation = <Confirm 
                 confirm={this.setExerciseToEditHandler} 
-                reject={() => {this.setState({confirmEditExerciseId: null})}}
-                text={'Would You like to edit Your '+ name + ' details?'} />
+                reject={this.rejectExerciseToEditHandler}
+                text={<span>Would You like to edit Your <u>{name}</u> details?</span>} />
         }
 
         let trainingComplete = null;
         let exercisesList = null;
         if (this.state.exercises.length > 0) {
             trainingComplete = <div className={classes.TrainingComplete}>
-                <button onClick={this.toggleTrainingSummary}>Complete Training</button>
+                <Button btnType="Success" clicked={this.toggleTrainingSummary}>Complete Training</Button>
             </div>
 
             console.log(this.state.exercises);
@@ -315,7 +320,12 @@ class Training extends Component {
                 }
             }
 
-            return <li onClick={() => this.exercisesListItemClickHandler(x.exercise.id)} key={index}>{x.exercise.name + ' > '} {setsText}</li>
+            return <li 
+                className={classes.CompletedExercise} 
+                onClick={() => this.exercisesListItemClickHandler(x.exercise.id)} 
+                key={index}>
+                {x.exercise.name + ' > '} {setsText}
+            </li>
         });
         }
         else {
@@ -325,8 +335,15 @@ class Training extends Component {
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
                 {this.state.showStartPrompt ? <StartPrompt show={true} loading={this.state.startPrompSpinner} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
-                {editExerciseConfirmation}
-                <Modal show={this.state.showSummary} modalClosed={this.toggleTrainingSummary}>
+                <Modal 
+                    show={this.state.confirmEditExerciseId} 
+                    modalClose={this.rejectExerciseToEditHandler}
+                    height="30"
+                    >
+                    {editExerciseConfirmation}
+                </Modal>
+                
+                <Modal show={this.state.showSummary} modalClose={this.toggleTrainingSummary} width={80}>
                     <TrainingSummary 
                         loading={this.state.summarySpinner}
                         summaryMsg={this.state.summaryMsg}
@@ -335,7 +352,8 @@ class Training extends Component {
                         endTime={this.state.endTime} 
                         summaryCompleted={this.trainingCompletionHandler}
                         summaryCanceled={this.toggleTrainingSummary}
-                        timeOnChange={this.timeOnChangeHandler}
+                        timeOnChange={this.formElementOnChangeHandler}
+                        commentChanged={this.formElementOnChangeHandler}
                         />
                 </Modal>
                 <div className={classes.TrainingInfo}>
@@ -344,7 +362,7 @@ class Training extends Component {
                             name="startTime"
                             type="datetime-local" 
                             value={this.state.startTime} 
-                            onChange={this.timeOnChangeHandler} 
+                            onChange={this.formElementOnChangeHandler} 
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
                             /> 
                     {this.state.endTime ? <Aux> End: 
@@ -352,7 +370,7 @@ class Training extends Component {
                             name="endTime"
                             type="datetime-local" 
                             value={this.state.endTime} 
-                            onChange={this.timeOnChangeHandler} 
+                            onChange={this.formElementOnChangeHandler} 
                             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
                             /> </Aux> : null
                     }

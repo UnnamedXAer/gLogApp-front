@@ -51,7 +51,7 @@ class ExerciseLookup extends React.Component {
 
         axios.get('exercise/details/id/'+id)
             .then(res => {
-                this.setState({detailedExercise: res.data, showDetails: true});
+                this.setState({detailedExercise: res.data.data, showDetails: true});
                 console.log(res.data);
             })
             .catch(err => {

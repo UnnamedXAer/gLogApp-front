@@ -10,11 +10,15 @@ const addSet = (props) => {
     return (
         <div className={classes.AddSet}>    
                 <div className={classes.AddSetTitle}>New set: </div>
-                <label >Weight: <input size="3" type="number" min="0" max="999" step="0.01" name="currentWeight"
-                    value={props.weightVal} onChange={props.elementValueChanged} placeholder="[eg. 17.5]" /></label>
-                <label>Reps: <input type="number" min="0" max="999" step="1" size="3" name="currentReps" 
-                    value={props.repsVal} placeholder="[eg. 12]" onChange={props.elementValueChanged} /></label>
                 <div className={classes.FormElement}>
+                    <label >Weight: <input size="3" type="number" min="0" max="999" step="0.01" name="currentWeight"
+                        value={props.weightVal} onChange={props.elementValueChanged} placeholder="[eg. 17.5]" /></label>
+                </div>
+                <div className={classes.FormElement}>
+                    <label>{props.units ===1 ? "Time[s]:" : "Reps:"}<input type="number" min="0" max="999" step="1" size="3" name="currentReps" 
+                        value={props.repsVal} placeholder="[eg. 12]" onChange={props.elementValueChanged} /></label>
+                </div>
+                {/* <div className={classes.FormElement}>
                     <label >Drop: <input 
                         name="currentDrop"
                         onChange={props.elementValueChanged} 
@@ -31,15 +35,19 @@ const addSet = (props) => {
                             name="currentTempo"
                             placeholder="Tempo text" />
                     </label>
+                </div> */}
+                <div className={classes.FormElement}>
+                    <label >Comment: 
+                        <div style={{paddingTop: '5px'}}>
+                        <textarea rows="3" cols="40" 
+                            placeholder="Type comment for this set." 
+                            name="currentComment"
+                            value={props.commentVal}
+                            onChange={props.elementValueChanged} />
+                        </div>
+                    </label>
                 </div>
-                <label >Comment: 
-                    <textarea rows="2" cols="30" 
-                        placeholder="Type comment for this set." 
-                        name="currentComment"
-                        value={props.commentVal}
-                        onChange={props.elementValueChanged} />
-                </label>
-            <div className={classes.ButtonWraper}>
+            <div className={classes.ButtonWrapper}>
                 <RoundButton 
                     sign="tick"
                     float="right"

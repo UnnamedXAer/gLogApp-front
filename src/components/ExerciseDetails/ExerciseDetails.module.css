@@ -14,3 +14,16 @@
     width: 50%;
     float: left;
 }
+
+.PhotoWrapper {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.PhotoWrapper img {
+    max-width: 90%;
+    max-height: 150px;
+    margin: 0px 5%;
+    font-size: 0.9em;
+}
