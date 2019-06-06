@@ -14,7 +14,7 @@ const exerciseDetails = (props) => (
                     <h5>Description:</h5>
                     <p>{props.exercise.description}</p>
                     <div className={classes.PhotoWrapper}>
-                        {props.photo ? <img className={classes.ImgPreview} src={props.photo} alt="Sample graphic"/> : null}
+                        {!props.exercise.imgName ? null : props.photo ? <img className={classes.ImgPreview} src={props.photo} alt="Sample graphic"/> : <Spinner /> }
                     </div>
                     <div className={classes.CreatedWrapper}>
                         <div className={classes.Created}>

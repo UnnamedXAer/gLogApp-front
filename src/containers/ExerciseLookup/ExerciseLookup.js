@@ -14,7 +14,8 @@ class ExerciseLookup extends React.Component {
         exercises: [],
         searchField: "",
         showDetails: false,
-        detailedExercise: null
+        detailedExercise: null,
+        photo: null
     }
 
     inputRef = React.createRef();
@@ -48,15 +49,32 @@ class ExerciseLookup extends React.Component {
 
     showDetailsHandler = (ev, id) => {
         if (!this.state.detailedExercise || id !== this.state.detailedExercise.id) {
-
-        axios.get('exercise/details/id/'+id)
-            .then(res => {
-                this.setState({detailedExercise: res.data.data, showDetails: true});
-                console.log(res.data);
-            })
-            .catch(err => {
-                console.log('showExerciseDetail ', err);
-            });
+            axios.get('exercise/details/id/'+id)
+                .then(res => {
+                    this.setState({detailedExercise: res.data.data, showDetails: true, photo: null});
+                    console.log(res.data);
+                    if (res.data.data.imgName) {
+                        console.log('(res.data.data.imgName)' + !!(res.data.data.imgName))
+                        axios.get(`/exercise/${res.data.data.id}/photo/`, {
+                            responseType: 'arraybuffer'
+                        })
+                        .then(res => {
+                            if (res.status === 200)
+                                this.setState({photo: "data:;base64,"+Buffer.from(res.data, 'binary').toString('base64')});
+                            else {
+                                // no content - status 204
+                                this.setState({photo: require('../../img/avatar-blank.png')});
+                            }
+                        })
+                        .catch(err => {
+                            this.setState({photo: require('../../img/avatar-blank.png')});
+                            console.log('Failed to load photo.', err);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log('showExerciseDetail ', err);
+                });
         }
         else {
             this.setState({showDetails: true});
@@ -79,7 +97,7 @@ class ExerciseLookup extends React.Component {
         }
         let exerciseDetails = null;
         if (this.state.showDetails) {
-            exerciseDetails = <ExerciseDetails exercise={this.state.detailedExercise}/>
+            exerciseDetails = <ExerciseDetails exercise={this.state.detailedExercise} photo={this.state.photo} />
         }
 
         return ( // TODO: rows overlapped by not visible elements on wider screens.
