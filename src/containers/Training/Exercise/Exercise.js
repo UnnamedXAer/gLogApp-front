@@ -194,10 +194,15 @@ class Exercise extends React.Component {
         if (exercise) {
             if ( this.state.id) {
                 // replace current exercise
-                axios.put('training/exercise', { 
+                const newExercise = {
+                    id: exercise.id,
+                    startTime: this.state.startTime,
+                    endTime: this.state.endTime,
+                    exerciseId: exercise.id,
                     trainingId: this.props.trainingId,
-                    exerciseId: exercise.id
-                })
+                }
+
+                axios.put('training/exercise', newExercise)
                 .then(res => {
                     this.setState({showLookup: !showLookup, id: res.data.data, exercise: exercise});
                 })
@@ -307,7 +312,7 @@ class Exercise extends React.Component {
                 </Modal>
                 <Modal show={this.state.inExerciseClear} modalClose={this.toggleExerciseMenu} >
                     <ExerciseMenu 
-                        clearExercise={this.clearExerciseHandler} 
+                        clearExercise={this.changeExerciseHandler} 
                         clearExerciseAndSets={this.clearExerciseAndSetsHandler} 
                         doNothing={this.toggleExerciseMenu} 
                     />
