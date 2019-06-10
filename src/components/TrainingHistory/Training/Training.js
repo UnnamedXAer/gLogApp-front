@@ -4,8 +4,6 @@ import Exercise from '../Exercise/Exercise';
 import RoundButton from '../../UI/RoundButton/RoundButton';
 
 const training = props => {
-
-    console.log(props.training)
     const training = props.training;
     const startTime = new Date(training.startTime);
 
@@ -21,9 +19,10 @@ const training = props => {
         <div className={classes.Training} >
             <div className={classes.Header} onClick={props.expand}>
                 <RoundButton 
-                    clicked={props.expand} 
+                    clicked={props.toggleTrainingMenu} 
                     size='30'
-                    sign={training.expanded ? "minus" : "plus"}
+                    // sign="menuV"{training.expanded ? "minus" : "plus"}
+                    sign="menuV"
                     float="right"
                     bgColor="white"
                     fgColor="black"

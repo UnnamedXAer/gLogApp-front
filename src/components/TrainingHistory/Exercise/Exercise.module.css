@@ -14,6 +14,20 @@
     display: inline-block;
 }
 
+.InfoName {
+    box-sizing: border-box;
+    width: 40%;
+    display: inline-block;
+    font-weight: 600; 
+}
+
+.InfoTime {
+    box-sizing: border-box;
+    width: 60%;
+    display: inline-block;
+    text-align: right;
+}
+
 .ExpandSign {
     box-sizing: border-box;
     padding: 5px 10px 5px 0px;
@@ -30,4 +44,17 @@
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
+}
+
+.Sets ol {
+    padding-inline-start: 20px;
+}
+
+.Unit {
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+.Sets li {
+    padding: 5px 0px;
 }

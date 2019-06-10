@@ -8,13 +8,14 @@ const exercise = props => {
     
     if (exercise.expanded) {
         details = <div className={classes.Sets}>
-            <ul>
+            <ol>
                 {exercise.sets.map(x => (
                     <li key={x.id}>
-                        {x.weight}[kg] * {x.reps + " " + (exercise.setsUnit === 1 ? "" : "s")} - {x.time}
+                        {1*x.weight}<span className={classes.Unit}>[kg]</span> * {x.reps}
+                        {exercise.setsUnit === 1 ? "" : (<span className={classes.Unit}>[s]</span>)} - {new Date(x.time).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false, second: '2-digit' })}
                     </li>
                 ))}
-            </ul>
+            </ol>
         </div>
     }
 
@@ -26,10 +27,12 @@ const exercise = props => {
         <div className={classes.Exercise}>
             <div className={classes.Header} onClick={props.expand}>
                 <div className={classes.Info}>
-                    {exercise.name} 
-                    {startTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false })} 
-                    - {endTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false })} 
-                    ({diffTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false })} )
+                    <div className={classes.InfoName}>{exercise.name}</div>
+                    <div className={classes.InfoTime}>{ " " +
+                                startTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false }) +
+                        " - " + endTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false }) +
+                        " ("  + diffTime.toLocaleString('en-us', { hour: '2-digit', minute: '2-digit', hour12: false })+ ")"}
+                    </div>
                 </div>
                 <div className={classes.ExpandSign}>
                     {exercise.expanded ? "-" : "+"}
