@@ -61,7 +61,7 @@ class Training extends Component {
             sets: sets
         }
         
-        const index = exercises.findIndex(x => x.id === newExercise.id);
+        const index = exercises.findIndex(x => x.id === exercise.id);
         if (index === -1) {
             exercises.push(exercise);   //add new
         }

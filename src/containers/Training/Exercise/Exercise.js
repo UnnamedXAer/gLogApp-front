@@ -26,8 +26,8 @@ class Exercise extends React.Component {
             currentTempo: "",
             currentComment: "",
             currentSetId: null,
-            sets: this.props.userExercise? this.props.userExercise.sets : [],
-            exercise: null,//{id:101, name: 'Landmire Press'},
+            sets: [],
+            exercise: null,//{id:101, name: 'Landmire Press', setsUnit: 1},
             startTime: null,
             endTime: null,
             inExerciseClear: false,
@@ -52,7 +52,7 @@ class Exercise extends React.Component {
                 currentComment: "",
                 currentSetId: null,
                 sets: exerciseToUpdate.sets,
-                exercise: exerciseToUpdate.exercise,//{id:101, name: 'Landmire Press'},
+                exercise: exerciseToUpdate.exercise,
                 startTime: exerciseToUpdate.startTime,
                 endTime: exerciseToUpdate.endTime,
                 // inExerciseClear: false,
@@ -65,24 +65,28 @@ class Exercise extends React.Component {
     formElementValueChangeHandler = (event) => {
         const element = event.target;
         const name= element.name;
-        const value = element.type === "checkbox" ? element.checked : element.value;
-
+        let value = element.type === "checkbox" ? element.checked : element.value;
+        if (name === 'weight' && value === "") {
+            value = 0;
+        }
         this.setState({[name]: (value)});
     }
 
     addSetHandler = (event) => {
         
-        if(!this.state.currentWeight || !this.state.currentReps) {
-            return window.alert('Weight and reps are required. If you fe. do not remember the value use -1.');
+        if(!this.state.currentReps) {
+            return window.alert((this.state.exercise.setsUnit === 2 
+                ? 'Time is' : 'Reps are')
+                + ' required. If you fe. do not remember the value use -1.');
         }
 
         // todo: if edited find from this.sets.
-
+        console.log(this.state);
         let set = {
             trainingId: this.props.trainingId,
             exerciseId: this.state.id,
             id: this.state.currentSetId,
-            weight: Math.round((this.state.currentWeight * 100) / 100),
+            weight: (this.state.currentWeight ? (Math.round(this.state.currentWeight * 100)/ 100) : 0),
             reps: parseInt(this.state.currentReps, 10),
             comment: this.state.currentComment,
             drop: this.state.currentDrop,
@@ -195,7 +199,7 @@ class Exercise extends React.Component {
             if ( this.state.id) {
                 // replace current exercise
                 const newExercise = {
-                    id: exercise.id,
+                    id: this.state.id,
                     startTime: this.state.startTime,
                     endTime: this.state.endTime,
                     exerciseId: exercise.id,
@@ -204,7 +208,7 @@ class Exercise extends React.Component {
 
                 axios.put('training/exercise', newExercise)
                 .then(res => {
-                    this.setState({showLookup: !showLookup, id: res.data.data, exercise: exercise});
+                    this.setState({showLookup: !showLookup, exercise: exercise});
                 })
                 .catch (err => {
                     console.log(err)
