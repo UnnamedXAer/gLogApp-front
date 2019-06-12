@@ -43,7 +43,17 @@ class Login extends React.Component {
                     }
                     else {
                         localStorage.setItem('user_id', res.data.user.id);
+                        localStorage.setItem('expiration_date', res.data.expirationDate);
+                        console.log('Session will expire at: ', new Date(res.data.expirationDate));
                         console.log(localStorage.getItem('user_id'));
+
+                        setTimeout( () => {
+                            localStorage.removeItem('expiration_date');
+                            localStorage.removeItem('user_id');
+                            console.log('timedout - session expired.');
+                            this.props.history.push('/un-authorized');
+                        }, res.data.expirationDate - Date.now());
+
                         this.setState({redirect: true});
                     }
                 })

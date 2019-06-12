@@ -53,6 +53,7 @@ class MainMenu extends Component {
     ];
 
     logoutHandler = (ev) => {
+        localStorage.removeItem('expiration_date');
         localStorage.removeItem('user_id');
         axios.get('/auth/logout')
         .then(response => {

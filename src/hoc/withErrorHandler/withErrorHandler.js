@@ -53,6 +53,8 @@ const withErrorHandler = (WrappedComponent, axios) => {
                 // }
                 if (this.state.error.response && this.state.error.response.status === 401) {
                     localStorage.removeItem('user_id');
+                    localStorage.removeItem('expiration_date');
+                    
                     content = <Aux><h3><i>Unauthorized access</i></h3>
                     <p>You are not logged. Please login or signup.</p></Aux>
                 }
