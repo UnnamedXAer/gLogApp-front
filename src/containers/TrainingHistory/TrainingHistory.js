@@ -6,14 +6,13 @@ import Training from '../../components/TrainingHistory/Training/Training';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import Modal from '../../components/UI/Modal/Modal';
 import TrainingMenu from '../../components/TrainingHistory/TrainingMenu/TrainingMenu';
-
 import { PieChart } from 'react-chartkick';
 import 'chart.js';
 
 class TrainingHistory extends React.Component {
 
     state = {
-        trainings: null,
+        trainings: [],
         loading: true,
         showTrainingMenu: false,
         currentTrainingId: null,
@@ -103,7 +102,11 @@ class TrainingHistory extends React.Component {
     componentDidMount () {
         axios.get('/training-hist')
         .then(res => {
-            if (res.status === 200) {
+            console.log(res);
+            if (res.status === 204) {
+                this.setState({loading: false});
+            }
+            else {
                 const trainings = res.data.data.map(x => ({...x, exercises: [], expanded: false}));
                 console.log(trainings);
                 this.setState({trainings: trainings, loading: false});
@@ -114,13 +117,18 @@ class TrainingHistory extends React.Component {
     render () {
         let content = <Spinner />
         if (!this.state.loading) { 
-            content = this.state.trainings.map(x=> <Training 
+            if (this.state.trainings.length === 0) {
+                content = <p>There is nothing to display, go and do same trainings.</p>
+            }
+            else {
+                content = this.state.trainings.map(x=> <Training 
                     toggleTrainingMenu={(ev) => this.toggleTrainingMenuHandler(ev, x.id)}
                     expand={(ev) => this.toggleExpandHandler(ev, x.id)} 
                     expandExercise={this.toggleExerciseExpandHandler}
                     key={x.id} 
                     training={x}
                      />);
+            }
         }
 
         let trainingMenu = null;

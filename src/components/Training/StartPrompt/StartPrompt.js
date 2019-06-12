@@ -6,6 +6,7 @@ import Spinner from '../../UI/Spinner/Spinner';
 import Aux from '../../../hoc/Auxiliary';
 import Button from '../../UI/Button/Button';
 import { formatDateToDisplay } from '../../../utils/utility';
+import CloseArrow from '../../UI/CloseArrow/CloseArrow';
 
 const startPrompt = props => {
 
@@ -23,8 +24,10 @@ const startPrompt = props => {
             overflow="auto"
              >
             <div className={classes.StartPrompt}>
-                {props.loading ? <Spinner /> :
-                    <Aux>
+                <CloseArrow closePanel={props.close} />
+                {props.loading 
+                    ? <Spinner /> 
+                    : <Aux>
                         <div className={classes.SavedTrainings}>
                             {trainings? 
                                 <Aux>

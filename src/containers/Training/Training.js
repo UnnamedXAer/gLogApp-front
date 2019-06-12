@@ -18,7 +18,7 @@ class Training extends Component {
         this.state = {
             exerciseToUpdate: null,
             exercises: [],
-            startTime: convertToInputDateFormat(new Date()),
+            startTime: "",
             endTime: "",
             showSummary: false,
             summarySpinner: false,
@@ -37,11 +37,17 @@ class Training extends Component {
     registerNewTraining () {
         console.log('Try to register new TRAINING.')
         axios.post('/training/', {
-            startTime: this.state.startTime
+            startTime: new Date().toUTCString(),//this.state.startTime,
+            startTime2: new Date()
         })
         .then(response => {
             console.log('New TRAINING registered with id: ', response.data.data);
-            this.setState({trainingId: response.data.data, showStartPrompt: false, savedTrainings: null});
+            this.setState({
+                trainingId: response.data.data.id, 
+                showStartPrompt: false, 
+                savedTrainings: null, 
+                startTime: convertToInputDateFormat(response.data.data.startTime)
+            });
         })
         .catch(err => {
             console.log('Failed to register new TRAINING.', err); // todo add error handler
@@ -51,7 +57,6 @@ class Training extends Component {
     completeExerciseHandler = (newExercise, sets) => {
         console.log('Training. exercise completed.', newExercise);
         let exercises = [...this.state.exercises];
-
         
         const exercise = {
             id: newExercise.id,
@@ -75,18 +80,17 @@ class Training extends Component {
         
         const exercise_put = {
             id: newExercise.id,
-            startTime: newExercise.startTime,
-            endTime: newExercise.endTime,
+            startTime: new Date(newExercise.startTime).toUTCString(),
+            endTime: new Date(newExercise.endTime).toUTCString(),
             exerciseId: newExercise.exercise.id,
             trainingId: newExercise.trainingId,
         }
 
         if (this.state.trainingId) {
             this.updateExercise(exercise_put);
-
         }
         else {
-            this.registerNewTraining();
+            this.registerNewTraining(); // not too good without saving this exercise after training is created.
         }
     }
 
@@ -107,7 +111,7 @@ class Training extends Component {
             .then(res => {
                 console.log('Exercise updated. ', exercise);
             })
-            .catch(err => console.log('Fail to complete exercise. \n', err, exercise));
+            .catch(err => console.log('Fail to update/complete exercise. \n', err, exercise));
     }
 
     exercisesListItemClickHandler = (id) => {
@@ -123,8 +127,8 @@ class Training extends Component {
         this.setState({confirmEditExerciseId: null})
     }
 
-    formElementOnChangeHandler = (event) => {
-        this.setState({[event.target.name]: event.target.value});
+    formElementOnChangeHandler = (ev) => {
+        this.setState({[ev.target.name]: ev.target.value});
     }
 
     toggleTrainingSummary = () => {
@@ -142,8 +146,8 @@ class Training extends Component {
 
         let training = {
             id: this.state.trainingId,
-            startTime: this.state.startTime,
-            endTime: this.state.endTime,
+            startTime: new Date(this.state.startTime).toUTCString(),
+            endTime: new Date(this.state.endTime).toUTCString(),
             comment: this.state.comment
         }
         // todo check if exercises / sets are saved.
@@ -174,14 +178,14 @@ class Training extends Component {
     savedTrainingsSelectHandler = (ev, id) => {
         
         if (id) {
-            const training = this.state.savedTrainings.find(training => training.id === id); // TODO will not work for not saved trainings
+            const training = this.state.savedTrainings.find(training => training.id === id);
             this.setState({showSpinner: true});
             axios.get('/training/details/id/'+training.id)
             .then(res => {
                 if (res.status === 200) {
                     const data = res.data.data;
                     const st = (data.startTime ? convertToInputDateFormat(data.startTime) : "");
-                    const et =  (data.endTime ? convertToInputDateFormat(data.endTime) : "");
+                    const et =  (data.endTime ? convertToInputDateFormat(data.endTime) : ""); // when undefined/null
                     this.setState({
                         trainingId: data.id,
                         startTime: st,
@@ -203,8 +207,7 @@ class Training extends Component {
                 }
             })
             .catch(err => {
-                console.log(err)
-                // this.setState()
+                console.log(err);
             })
         }
         else {
@@ -233,36 +236,12 @@ class Training extends Component {
         })
     }
 
-
+    closeStartPromptHandler = (ev) => {
+        this.props.history.goBack();
+    }
 
     componentDidMount () {
         this.getNotCompletedTrainings();
-        // const savedTrainings = localStorage.getItem('trainings');
-        // if (savedTrainings) {
-        //     let ids = null;
-        //     try {
-        //         ids = JSON.parse(savedTrainings);
-        //         if (ids && ids.length > 0) {
-        //             axios.get('/training/ids', {
-        //                 params: ids
-        //             })
-        //             .then(res => {
-        //                 this.setState({showStartPrompt: true, savedTrainings: res.data.ids});
-        //             })
-        //             .catch(err => {
-        //                 this.setState({showStartPrompt: true});
-        //             })
-        //         }
-        //     }
-        //     catch (err) {
-        //         console.log(err);
-        //         this.setState({showStartPrompt: true});
-        //     }
-        // }
-        // else {
-        //     this.setState({showStartPrompt: true});
-        //     // this.registerNewTraining();
-        // }
     }
 
     render () {
@@ -334,7 +313,13 @@ class Training extends Component {
         return (
             <div className={classes.Training}>
                 {this.state.redirect ? <Redirect to="/home" /> : null}
-                {this.state.showStartPrompt ? <StartPrompt show={true} loading={this.state.startPrompSpinner} trainingSelected={this.savedTrainingsSelectHandler} trainings={this.state.savedTrainings} /> : null}
+                {this.state.showStartPrompt ? <StartPrompt 
+                    show={true} 
+                    close={this.closeStartPromptHandler}
+                    loading={this.state.startPrompSpinner} 
+                    trainingSelected={this.savedTrainingsSelectHandler} 
+                    trainings={this.state.savedTrainings} /> : null
+                }
                 <Modal 
                     show={this.state.confirmEditExerciseId} 
                     modalClose={this.rejectExerciseToEditHandler}

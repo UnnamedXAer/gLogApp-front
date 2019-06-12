@@ -5,6 +5,12 @@
  * @class Timeout
  */
 export class Timeout {
+    /**
+     *Creates an instance of Timeout.
+     * @param {function} fn
+     * @param {Number} interval
+     * @memberof Timeout
+     */
     constructor(fn, interval) {
         var id = setTimeout(fn, interval);
         this.cleared = false;
@@ -20,7 +26,7 @@ export class Timeout {
  * @export
  * @param {[]} array
  * @param {[]} toRemove
- * @returns []
+ * @returns {Array}
  */
 export function getReducedArray(array, toRemove) {
     let reduced = [...array];
@@ -41,7 +47,7 @@ export function getReducedArray(array, toRemove) {
  * @param {[]} arr []
  * @param {string} prop
  * @param {string} name
- * @returns number
+ * @returns {number}
  */
 export function positionInArray (arr, prop, name) {
     
@@ -75,21 +81,17 @@ export function compareByNameProperty(a, b) {
  */
 export function convertToInputDateFormat(date) {
     if (typeof date === "object") {  //eg. new Date()
-        let month = date.getMonth()+1;
-        if (month < 10) month = "0"+month;
-        let day = date.getDate();
-        if (day < 10) day = "0"+day;
-        const year = date.getFullYear();
-        let hour = date.getHours();
-        if (hour < 10) hour = "0"+hour;
-        let minutes = date.getMinutes();
-        if (minutes < 10) minutes = "0"+minutes;
-
-        return year +'-'+ month +'-'+ day +'T'+ hour +':'+ minutes;
+        return dateOjbToDateInpFormat(date)
         // return month +'-'+ day +'-'+ year +'T'+ hour +':'+ minutes;
         // return month +'/'+ day +'/'+ year +'T'+ hour +':'+ minutes;
     }
-    else if (date !== "" && date.indexOf('T') > -1) {
+    else if (date === "") {
+        return "";
+    }
+    else if (date.indexOf('GMT') > -1) {
+        return dateOjbToDateInpFormat(new Date(date));
+    }
+    else if (date.indexOf('T') > -1) {
         // console.log(date.substr(0, 16))
         return date.substr(0, 23)//date.substr(0, 16);
     }
@@ -99,10 +101,24 @@ export function convertToInputDateFormat(date) {
     }
 }
 
+function dateOjbToDateInpFormat(date) {
+    let month = date.getMonth()+1;
+    if (month < 10) month = "0"+month;
+    let day = date.getDate();
+    if (day < 10) day = "0"+day;
+    const year = date.getFullYear();
+    let hour = date.getHours();
+    if (hour < 10) hour = "0"+hour;
+    let minutes = date.getMinutes();
+    if (minutes < 10) minutes = "0"+minutes;
+
+    return year +'-'+ month +'-'+ day +'T'+ hour +':'+ minutes;
+}
+
 /**
  * Check if given string is correct date.
  */
-export function isCorrectDate(date) {
+export function isCorrectDate(date) { // do not work for GMT
     const d = new Date (date);
     let month = d.getMonth()+1;
     if (month < 10) month = "0"+month;    
