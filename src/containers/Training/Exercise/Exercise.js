@@ -10,8 +10,6 @@ import RoundButton from '../../../components/UI/RoundButton/RoundButton';
 import Confirm from '../../../components/UI/Confirm/Confirm';
 import axios from '../../../axios-dev';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
-// import { convertToInputDateFormat } from '../../../utils/utility';
-
 
 class Exercise extends React.Component {
     constructor (props) {
@@ -36,11 +34,8 @@ class Exercise extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        console.log('derived')
-        // const isPropExercise = (props.exerciseToUpdate !== null);
         const exerciseToUpdate = props.exerciseToUpdate;
         if ((exerciseToUpdate !== null) && exerciseToUpdate.id !== state.id) {
-            console.log('updated state with props.')
             return {
                 id: exerciseToUpdate.id,
                 readOnly: true,
@@ -54,9 +49,7 @@ class Exercise extends React.Component {
                 sets: exerciseToUpdate.sets,
                 exercise: exerciseToUpdate.exercise,
                 startTime: exerciseToUpdate.startTime,
-                endTime: exerciseToUpdate.endTime,
-                // inExerciseClear: false,
-                // showConfirmation: false
+                endTime: exerciseToUpdate.endTime
             };
         }
         return null;
@@ -66,9 +59,20 @@ class Exercise extends React.Component {
         const element = event.target;
         const name= element.name;
         let value = element.type === "checkbox" ? element.checked : element.value;
-        if (name === 'weight' && value === "") {
-            value = 0;
+        switch (name) {
+            case 'currentWeight':
+                if (value === "") 
+                value = "0";
+                // eslint-disable-next-line
+            case 'currentReps':
+                if (value.length > 3) {
+                    value = value.substr(0, 3);
+                }
+            break;
+            default:
+                break;
         }
+
         this.setState({[name]: (value)});
     }
 
@@ -81,7 +85,6 @@ class Exercise extends React.Component {
         }
 
         // todo: if edited find from this.sets.
-        console.log(this.state);
         let set = {
             trainingId: this.props.trainingId,
             exerciseId: this.state.id,
@@ -96,15 +99,6 @@ class Exercise extends React.Component {
 
         let sets = [...this.state.sets];
 
-        console.log('_set', { 
-            id: set.id, 
-            weight: set.weight, 
-            reps: set.reps, 
-            comment: set.comment, 
-            drop: set.drop, 
-            tempo: set.tempo, 
-            time: set.time
-        });
         sets.push({ 
             id: set.id, 
             weight: set.weight, 
@@ -160,11 +154,11 @@ class Exercise extends React.Component {
 
     clearAddSetSection = () => {
         this.setState({
-            //currentWeight: "", // keep last weight as log as the same exercise is in progress.
+            //currentWeight: "", // todo keep last weight as log as the same exercise is in progress.
             // currentReps: '', // should I keep reps?
-            // currentDrop: "",
+            currentDrop: "",
             // currentTempo: "",
-            // currentComment: '',
+            currentComment: '',
             currentSetId: null
         });
     }
@@ -265,6 +259,7 @@ class Exercise extends React.Component {
     }
 
     render () {
+
         let exerciseLookup = null;
 
         let exerciseHeader = <RoundButton size="40" float="right" sign="tick" clicked={this.completeExerciseHandler} />

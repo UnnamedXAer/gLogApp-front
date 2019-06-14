@@ -95,9 +95,7 @@ class Training extends Component {
     }
 
     removeExerciseHandler = (id) => {
-        console.log(this.state.exercises);
         let newExercises = this.state.exercises.filter(x => x.id !== id);
-        console.log(newExercises);
         this.setState({exercises: newExercises, exerciseToUpdate: null, confirmEditExerciseId: null});
     }
 
@@ -151,7 +149,6 @@ class Training extends Component {
             comment: this.state.comment
         }
         // todo check if exercises / sets are saved.
-        console.log(training);
         axios.put('/training/', training)
             .then(res => {
                 if (res.status === 200) {
@@ -262,8 +259,6 @@ class Training extends Component {
             trainingComplete = <div className={classes.TrainingComplete}>
                 <Button btnType="Success" clicked={this.toggleTrainingSummary}>Complete Training</Button>
             </div>
-
-            console.log(this.state.exercises);
             
             exercisesList = this.state.exercises.map((x, index) => { // TODO: probably should move to new component
                 let setsText = null;

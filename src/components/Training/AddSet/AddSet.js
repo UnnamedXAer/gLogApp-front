@@ -1,4 +1,3 @@
-
 import React from 'react';
 import classes from './AddSet.module.css';
 import RoundButton from '../../UI/RoundButton/RoundButton';
@@ -15,7 +14,7 @@ const addSet = (props) => {
                         value={props.weightVal} onChange={props.elementValueChanged} placeholder="[eg. 17.5]" /></label>
                 </div>
                 <div className={classes.FormElement}>
-                    <label>{props.units ===1 ? "Time[s]:" : "Reps:"}<input type="number" min="0" max="999" step="1" size="3" name="currentReps" 
+                    <label>{props.units === 2 ? "Time[s]:" : "Reps:"}<input type="number" min="0" max="999" step="1" size="3" name="currentReps" 
                         value={props.repsVal} placeholder="[eg. 12]" onChange={props.elementValueChanged} /></label>
                 </div>
                 {/* <div className={classes.FormElement}>
