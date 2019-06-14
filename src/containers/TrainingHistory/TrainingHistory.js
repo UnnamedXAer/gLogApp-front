@@ -29,7 +29,7 @@ class TrainingHistory extends React.Component {
         this.setState({trainings: trainings});
 
         if (!expanded && trainings[idx].exercisesCnt !== trainings[idx].exercises.length) {
-            axios.get(`/training-hist/exercises/${id}`)
+            axios.get(`/training-hist/${id}/exercises/`)
             .then(res => {
 
                 if (res.status === 200) {
@@ -81,7 +81,7 @@ class TrainingHistory extends React.Component {
         const idx = trainings.findIndex(x => x.id === id);
 
         if (trainings[idx].exercisesCnt !== trainings[idx].exercises.length) {
-            axios.get(`/training-hist/exercises/${id}`)
+            axios.get(`/training-hist/${id}/exercises/`)
             .then(res => {
 
                 if (res.status === 200) {
