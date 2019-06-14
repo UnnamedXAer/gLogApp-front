@@ -264,16 +264,6 @@ class Exercise extends React.Component {
         this.setState({showConfirmation: !showConfirmation});
     }
 
-
-
-/* lifeCycle methods */
-
-    componentDidMount () {
-        if (this.props.exerciseToUpdate) {
-            console.log('Exercise.componentDidMount: Exercise update not implemented yet :(');
-        }
-    }
-
     render () {
         let exerciseLookup = null;
 
