@@ -59,18 +59,38 @@ class Exercise extends React.Component {
         const element = event.target;
         const name= element.name;
         let value = element.type === "checkbox" ? element.checked : element.value;
-        switch (name) {
-            case 'currentWeight':
-                if (value === "") 
-                value = "0";
-                // eslint-disable-next-line
-            case 'currentReps':
-                if (value.length > 3) {
-                    value = value.substr(0, 3);
+        value = value.replace(/,/g, '.');
+            // todo remove multiple dots.
+
+        if (name === 'currentReps' && value.length > 3) {
+            value = value.substr(0, 3);
+        }
+        else if (name === "currentWeight"){
+            
+            const valueArr = value.split('.');
+            if (valueArr.length === 1) {
+                value = valueArr[0].substr(0,3);
+            }
+            else if (valueArr.length === 2) {
+
+                let part1 = valueArr[0].split('');
+                let part2 = valueArr[1].split('');
+
+                if (part1.length > 3) {
+
+
+                    if (part1.length > 3) {
+                        part2.unshift(part1.pop());
+                        part2.splice(2);
+                    }
                 }
-            break;
-            default:
-                break;
+                else if (part2.length > 2) {
+                    part2.splice(2);
+                }
+                value = part1.join("") + "."+part2.join("");
+                
+                // if (!value.match(/^\d{0,3}(\.\d{0,2})?$/)) {}
+            }
         }
 
         this.setState({[name]: (value)});
@@ -81,7 +101,7 @@ class Exercise extends React.Component {
         if(!this.state.currentReps) {
             return window.alert((this.state.exercise.setsUnit === 2 
                 ? 'Time is' : 'Reps are')
-                + ' required. If you fe. do not remember the value use -1.');
+                + ' required. If you eg. do not remember the value use -1.');
         }
 
         // todo: if edited find from this.sets.
