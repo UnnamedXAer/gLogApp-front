@@ -9,6 +9,7 @@ const trainingMenu = props => {
     return (<div className={classes.TrainingMenu}>
         <Button clicked={props.showComment} btnType="Normal">Show Comment</Button>
         <Button clicked={props.showChart} btnType="Normal">Show Chart</Button>
+        <Button clicked={props.deleteTraining} btnType="Normal">Delete Training</Button>
     </div>);
 }
 

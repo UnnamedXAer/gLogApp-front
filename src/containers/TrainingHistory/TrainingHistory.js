@@ -54,7 +54,7 @@ class TrainingHistory extends React.Component {
 
         const expanded = trainings[idx].exercises[exerciseIdx].expanded;
         
-        trainings[idx].exercises[exerciseIdx] = {...trainings[idx].exercises[exerciseIdx], expanded: !expanded}
+        trainings[idx].exercises[exerciseIdx] = {...trainings[idx].exercises[exerciseIdx], expanded: !expanded};
 
         this.setState({trainings: trainings});
     }
@@ -99,6 +99,18 @@ class TrainingHistory extends React.Component {
         }
     }
 
+    deleteTrainingHandler = () => {
+
+        const id = this.state.currentTrainingId;
+        this.setState({loading: true});
+        axios.delete('/training-hist/'+id)
+            .then(res => {
+                const deletedId = parseInt(res.data.data, 10);
+                const trainings = this.state.trainings.filter(x => x.id !== deletedId);
+                this.setState({trainings: trainings, showTrainingMenu: false, loading: false});
+            });
+    }
+
     componentDidMount () {
         axios.get('/training-hist')
         .then(res => {
@@ -111,6 +123,9 @@ class TrainingHistory extends React.Component {
                 console.log(trainings);
                 this.setState({trainings: trainings, loading: false});
             }
+        })
+        .catch(err => {
+            this.setState({loading: false});
         });
     }
 
@@ -135,7 +150,8 @@ class TrainingHistory extends React.Component {
         if (this.state.showTrainingMenu) {
             trainingMenu = <TrainingMenu 
                 showComment={this.showCommentHandler}
-                showChart={this.showChartHandler} />
+                showChart={this.showChartHandler}
+                deleteTraining={this.deleteTrainingHandler} />
         }
         else if (this.state.currentComment !== null) {
             trainingMenu = <div>
