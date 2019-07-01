@@ -29,7 +29,9 @@ class Exercise extends React.Component {
             startTime: null,
             endTime: null,
             inExerciseClear: false,
-            showConfirmation: false
+            showConfirmation: false,
+            errors: {},
+            setBackendErr: null
         }
     }
 
@@ -49,7 +51,9 @@ class Exercise extends React.Component {
                 sets: exerciseToUpdate.sets,
                 exercise: exerciseToUpdate.exercise,
                 startTime: exerciseToUpdate.startTime,
-                endTime: exerciseToUpdate.endTime
+                endTime: exerciseToUpdate.endTime,
+                errors: {},
+                setBackendErr: null
             };
         }
         return null;
@@ -60,7 +64,14 @@ class Exercise extends React.Component {
         const name= element.name;
         let value = element.type === "checkbox" ? element.checked : element.value;
         value = value.replace(/,/g, '.');
-            // todo remove multiple dots.
+        
+        // removing unnecessary dots.
+        const dotIndex = value.indexOf('.');
+        let tmpDotIndex = value.indexOf('.', dotIndex);
+        while(tmpDotIndex !== -1) {
+            value = value.substr(tmpDotIndex, 1);
+            tmpDotIndex = value.indexOf('.', dotIndex);
+        }
 
         if (name === 'currentReps' && value.length > 3) {
             value = value.substr(0, 3);
@@ -77,31 +88,60 @@ class Exercise extends React.Component {
                 let part2 = valueArr[1].split('');
 
                 if (part1.length > 3) {
-
-
-                    if (part1.length > 3) {
-                        part2.unshift(part1.pop());
-                        part2.splice(2);
-                    }
+                    part2.unshift(part1.pop());
+                    part2.splice(2);
                 }
                 else if (part2.length > 2) {
                     part2.splice(2);
                 }
                 value = part1.join("") + "."+part2.join("");
-                
-                // if (!value.match(/^\d{0,3}(\.\d{0,2})?$/)) {}
             }
         }
 
-        this.setState({[name]: (value)});
+        this.setState({
+            [name]: (value), 
+            errors: {
+                ...this.state.errors,
+                [name]: null
+            },
+            setBackendErr: null
+        });
     }
 
     addSetHandler = (event) => {
         
-        if(!this.state.currentReps) {
-            return window.alert((this.state.exercise.setsUnit === 2 
+        const errors = {...this.state.errors};
+
+        if (Number.isNaN(parseInt(this.state.currentReps, 10))) { 
+            // todo make it component
+            errors.currentReps = 'Cannot be empty.';
+            window.alert((this.state.exercise.setsUnit === 2 
                 ? 'Time is' : 'Reps are')
                 + ' required. If you eg. do not remember the value use -1.');
+        }
+        else if (this.state.currentReps > 999) {
+            errors.currentReps = 'Max is 999';
+        }
+        else {
+            errors.currentReps = null;
+        }
+
+        // if (Number.isNaN(parseFloat(this.state.currentWeight, 10))) {
+        //     errors.currentWeight =  'Cannot be empty.';
+        // }
+        if (this.state.currentWeight > 999.99) {
+            errors.currentWeight = 'Max is 999.99';
+        }
+        else {
+            errors.currentWeight = null;
+        }
+
+        const errorValues = Object.values(errors);
+        for (const value of errorValues) {
+            if (value) {
+                console.log('Prevented from saving set.')
+                return this.setState({errors: errors, setBackendErr: null});
+            }
         }
 
         // todo: if edited find from this.sets.
@@ -114,7 +154,7 @@ class Exercise extends React.Component {
             comment: this.state.currentComment,
             drop: this.state.currentDrop,
             tempo: this.state.currentTempo,
-            time: new Date()//convertToInputDateFormat(new Date())
+            time: new Date().toUTCString()
         }
 
         let sets = [...this.state.sets];
@@ -128,7 +168,11 @@ class Exercise extends React.Component {
             tempo: set.tempo, 
             time: set.time
         });
-        this.setState({sets: sets});
+        this.setState({
+            sets: sets,
+            errors: {},
+            setBackendErr: null
+        });
         this.clearAddSetSection();
 
         if (this.currentSetId) {
@@ -142,7 +186,10 @@ class Exercise extends React.Component {
     postSet(set) {
         axios.post('/training/set', set)
             .then(res => {
-                console.log(res)
+                if (res.data && res.data.errors) {
+                    this.setState({setBackendErr: res.data.errors});
+                }
+                console.log(res);
                 // update set
             })
             .catch(err => {
@@ -179,7 +226,9 @@ class Exercise extends React.Component {
             currentDrop: "",
             // currentTempo: "",
             currentComment: '',
-            currentSetId: null
+            currentSetId: null,
+            errors: {},
+            setBackendErr: null
         });
     }
 
@@ -195,7 +244,15 @@ class Exercise extends React.Component {
                 this.clearAddSetSection();
                 this.toggleExerciseMenu();
                 this.props.removeExercise(id);
-                this.setState({exercise: null, sets: [], id: null, startTime: null, endTime: null});
+                this.setState({
+                    exercise: null, 
+                    sets: [], 
+                    id: null, 
+                    startTime: null, 
+                    endTime: null, 
+                    errors: {},
+                    setBackendErr: null
+                });
             })
             .catch(err => {
                 console.log(err);
@@ -222,7 +279,12 @@ class Exercise extends React.Component {
 
                 axios.put('training/exercise', newExercise)
                 .then(res => {
-                    this.setState({showLookup: !showLookup, exercise: exercise});
+                    this.setState({
+                        showLookup: !showLookup, 
+                        exercise: exercise,
+                        errors: {},
+                        setBackendErr: null
+                    });
                 })
                 .catch (err => {
                     console.log(err)
@@ -238,10 +300,25 @@ class Exercise extends React.Component {
                     startTime: startTime
                 })
                 .then(res => {
-                    this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: res.data.data, exercise: exercise});
+                    this.setState({
+                        showLookup: !showLookup, 
+                        startTime: startTime, 
+                        endTime: null, 
+                        id: res.data.data, 
+                        exercise: exercise,
+                        errors: {},
+                        setBackendErr: null});
                 })
                 .catch (err => {
-                    this.setState({showLookup: !showLookup, startTime: startTime, endTime: null, id: null, exercise: exercise});
+                    this.setState({
+                        showLookup: !showLookup, 
+                        startTime: startTime, 
+                        endTime: null, 
+                        id: null, 
+                        exercise: exercise,
+                        errors: {},
+                        setBackendErr: null
+                    });
                 });
             }
         }
@@ -270,7 +347,17 @@ class Exercise extends React.Component {
         };
         const sets = [...this.state.sets];
         this.props.completed(exercise, sets); // pass exercise to parent (Training).
-        this.setState({exercise: null, id: null,startTime: null, endTime: null, currentSetId: null, sets: [], showConfirmation: false}); // TODO: is this ok?
+        this.setState({
+            exercise: null, 
+            id: null,
+            startTime: null, 
+            endTime: null, 
+            currentSetId: null, 
+            sets: [], 
+            showConfirmation: false, 
+            errors: {},
+            setBackendErr: null
+        }); // TODO: is this ok?
     }
 
     toggleExerciseConfirmation = () => {
@@ -333,7 +420,14 @@ class Exercise extends React.Component {
                     {this.state.exercise ?
                         <Aux>
                             <ExerciseSets sets={this.state.sets} units={this.state.exercise.setsUnit} />
+                            {this.state.setBackendErr ? <div className={classes.SetErrors}>
+                                    {this.state.setBackendErr.map((x, index) => {
+                                        return <p key={index}>{(this.state.exercise.setsUnit === 2 && x.param === "reps" ? "Time" : x.param) }: {x.msg}</p>
+                                    })}
+                                </div>
+                                : null}
                             <AddSet 
+                                errors={this.state.errors}
                                 units={this.state.exercise.setsUnit}
                                 inReadOnly={this.state.readOnly}
                                 weightVal={this.state.currentWeight}

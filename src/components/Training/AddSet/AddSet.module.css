@@ -23,3 +23,14 @@
     top:10px;
     right: 10px;
 }
+
+.Error {
+    box-sizing: border-box;
+    color: rgb(201, 22, 22);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.2);
+}
+
+.Error:first-letter  {
+    text-transform: capitalize;
+}
